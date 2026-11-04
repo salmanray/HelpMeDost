@@ -1,0 +1,31 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+<BaseLayout title="Track your request | HelpMeDost">
+  <section class="page-hero"><div class="container"><span class="eyebrow">Request tracking</span><h1>Your request, one step at a time.</h1><p>Enter the reference number you received after submitting your request and the phone number used in that request.</p></div></section>
+  <section class="container track-shell">
+    <form class="form-shell" id="track-form">
+      <div class="field"><label for="reference">Reference number</label><input id="reference" required maxlength="24" placeholder="HMD-XXXXXXXX" /></div>
+      <div class="field" style="margin-top:16px"><label for="phone">Phone number used in the request</label><input id="phone" type="tel" required maxlength="20" placeholder="Your phone number" /></div>
+      <div class="form-actions"><button class="button" type="submit" id="track-button">Check status →</button><span class="form-message" id="track-message" role="status"></span></div>
+      <div id="track-result" class="track-result hidden" aria-live="polite"></div>
+    </form>
+  </section>
+  <script>
+    const form = document.querySelector("#track-form"); const message = document.querySelector("#track-message"); const result = document.querySelector("#track-result"); const button = document.querySelector("#track-button");
+    form?.addEventListener("submit", async (event) => {
+      event.preventDefault(); message.textContent = ""; result.classList.add("hidden"); button.disabled = true; button.textContent = "Checking…";
+      try {
+        const response = await fetch("/api/track", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ referenceCode: document.querySelector("#reference").value, phone: document.querySelector("#phone").value }) });
+        const body = await response.json(); if (!response.ok) throw new Error(body.error || "Request not found.");
+        result.innerHTML = "<span class='status-label'></span><h3 style='margin:16px 0 8px'></h3><p class='muted'></p><small class='hint'></small>";
+        result.querySelector(".status-label").textContent = body.statusLabel;
+        result.querySelector("h3").textContent = body.subject;
+        result.querySelector(".muted").textContent = "Reference: " + body.referenceCode;
+        result.querySelector("small").textContent = "Last updated: " + new Date(body.updatedAt).toLocaleString();
+        result.classList.remove("hidden");
+      } catch (error) { message.textContent = error.message || "Unable to check status."; }
+      finally { button.disabled = false; button.textContent = "Check status →"; }
+    });
+  </script>
+</BaseLayout>
