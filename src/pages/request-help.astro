@@ -1,0 +1,42 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+<BaseLayout title="Request help | HelpMeDost" description="Submit a student or parent help request to HelpMeDost.">
+  <section class="page-hero"><div class="container"><span class="eyebrow">Student Help Portal</span><h1>How can we help?</h1><p>Share a little about what you need. Fields marked with * are required. Please do not include passwords, OTPs or highly sensitive documents.</p></div></section>
+  <section class="container">
+    <form class="form-shell" id="request-form">
+      <div class="form-grid">
+        <div class="field"><label for="name">Your name *</label><input id="name" name="name" autocomplete="name" maxlength="120" required placeholder="Full name" /></div>
+        <div class="field"><label for="phone">Phone number *</label><input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" required placeholder="Mobile number" /></div>
+        <div class="field"><label for="email">Email (optional)</label><input id="email" name="email" type="email" autocomplete="email" maxlength="180" placeholder="you@example.com" /></div>
+        <div class="field"><label for="contact">Preferred contact</label><select id="contact" name="contact"><option value="phone">Phone</option><option value="email">Email</option></select></div>
+        <div class="field full"><label for="category">What do you need help with? *</label><select id="category" name="category" required><option value="">Choose a topic</option><option value="student-help">School or student-related help</option><option value="admissions">Admission or application guidance</option><option value="documents">Forms and documents</option><option value="digital-support">Online or digital service help</option><option value="parent-guidance">Parent guidance</option><option value="other">Something else</option></select></div>
+        <div class="field full"><label for="subject">Short title *</label><input id="subject" name="subject" maxlength="180" required placeholder="For example: Need help understanding an admission process" /></div>
+        <div class="field full"><label for="description">Tell us a little more *</label><textarea id="description" name="description" maxlength="4000" required placeholder="What happened? What have you tried so far? What kind of help would be useful?"></textarea><span class="hint">Please avoid sharing Aadhaar numbers, bank details, passwords, OTPs or private medical information.</span></div>
+        <div class="field full"><label class="consent"><input type="checkbox" name="consent" required /><span>I agree that HelpMeDost may use the information I provide to review and respond to this request. *</span></label></div>
+      </div>
+      <div class="form-actions"><button class="button" type="submit" id="submit-button">Submit request <span>→</span></button><span class="form-message" id="form-message" role="status"></span></div>
+      <div id="success-result" class="result-card hidden" aria-live="polite"></div>
+    </form>
+  </section>
+  <script>
+    const form = document.querySelector("#request-form");
+    const button = document.querySelector("#submit-button");
+    const message = document.querySelector("#form-message");
+    const result = document.querySelector("#success-result");
+    form?.addEventListener("submit", async (event) => {
+      event.preventDefault(); message.textContent = ""; result.classList.add("hidden"); button.disabled = true; button.textContent = "Submitting…";
+      const data = new FormData(form);
+      const payload = Object.fromEntries(data.entries());
+      try {
+        const response = await fetch("/api/requests", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+        const body = await response.json();
+        if (!response.ok) throw new Error(body.error || "We could not submit your request. Please try again.");
+        result.innerHTML = "<p>Your request has been received. Save this reference number:</p><strong></strong><p>You can use it on the Track a request page.</p>";
+        result.querySelector("strong").textContent = body.referenceCode;
+        result.classList.remove("hidden"); form.reset();
+      } catch (error) { message.textContent = error.message || "Something went wrong."; }
+      finally { button.disabled = false; button.innerHTML = 'Submit request <span>→</span>'; }
+    });
+  </script>
+</BaseLayout>
