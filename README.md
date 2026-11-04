@@ -10,4 +10,4 @@ The first release focuses on the Student Help Portal. The wider platform will be
 
 - Repository: `salmanray/HelpMeDost`
 - Initial database schema: PostgreSQL on Neon
-- Next: build the website application, authentication, student help request flow, and admin dashboard.
+- Website foundation: homepage, help request form, request tracking and private helpdesk dashboard.
