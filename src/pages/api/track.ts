@@ -14,11 +14,12 @@ export const POST: APIRoute = async (context) => {
     const body = await context.request.json();
     const reference = cleanText(body.referenceCode, 24).toUpperCase();
     const phone = cleanText(body.phone, 20);
-    const phoneDigits = phone.replace(/\\D/g, "");
+    const phoneDigits = phone.replace(/\D/g, "");
     if (!reference || !phone) return json({ error: "Enter both your reference number and phone number." }, 400);
-    if (phoneDigits.length < 10) return json({ error: "Please enter a valid phone number." }, 400);
+    if (phoneDigits.length < 10 || phoneDigits.length > 15) {
+      return json({ error: "Please enter a valid phone number with 10 to 15 digits." }, 400);
+    }
     const sql = getDb(context);
-    // Compare the last 10 digits so +91, spaces, and hyphens do not prevent a match.
     const rows = await sql`SELECT reference_code, subject, status, updated_at
       FROM service_requests
       WHERE reference_code = ${reference}
