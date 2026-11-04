@@ -21,6 +21,7 @@ export const POST: APIRoute = async (context) => {
     const body = await context.request.json();
     const name = cleanText(body.name, 120);
     const phone = cleanText(body.phone, 20);
+    const phoneDigits = phone.replace(/\D/g, "");
     const email = cleanText(body.email, 180).toLowerCase();
     const category = cleanText(body.category, 50);
     const subject = cleanText(body.subject, 180);
@@ -30,8 +31,15 @@ export const POST: APIRoute = async (context) => {
     if (!name || !phone || !subject || !description || !categories[category] || body.consent !== "on") {
       return json({ error: "Please complete all required fields and accept the consent notice." }, 400);
     }
-    if (phone.replace(/\D/g, "").length < 10) return json({ error: "Please enter a valid phone number." }, 400);
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ error: "Please enter a valid email address." }, 400);
+    if (phoneDigits.length < 10 || phoneDigits.length > 15) {
+      return json({ error: "Please enter a valid phone number with 10 to 15 digits." }, 400);
+    }
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return json({ error: "Please enter a valid email address." }, 400);
+    }
+    if (preferredContact === "email" && !email) {
+      return json({ error: "Please enter an email address or choose phone as your preferred contact." }, 400);
+    }
 
     const sql = getDb(context);
     const rows = await sql`INSERT INTO service_requests
@@ -39,7 +47,6 @@ export const POST: APIRoute = async (context) => {
       VALUES (${makeReference()}, (SELECT id FROM service_categories WHERE slug = ${category} AND is_active = true LIMIT 1), ${name}, ${email || null}, ${phone}, ${subject}, ${description}, ${preferredContact}, 'normal', 'submitted', now())
       RETURNING id, reference_code`;
 
-    // Audit logging must not turn a successfully saved request into a failed submission.
     try {
       await sql`INSERT INTO audit_events (entity_type, entity_id, action, details)
         VALUES ('service_request', ${rows[0].id}, 'request_submitted', jsonb_build_object('category', ${categories[category]}))`;
