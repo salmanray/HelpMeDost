@@ -1,0 +1,6 @@
+name = "helpmedost"
+compatibility_date = "2026-11-04"
+pages_build_output_dir = "./dist"
+
+[vars]
+APP_NAME = "HelpMeDost"
