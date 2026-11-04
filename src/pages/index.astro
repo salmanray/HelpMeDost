@@ -1,0 +1,54 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+<BaseLayout>
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <span class="eyebrow">A little help goes a long way</span>
+        <h1>When life gets confusing, <em>start here.</em></h1>
+        <p class="hero-copy">From school-related questions to everyday guidance, HelpMeDost helps students and families find clear information, practical support and the right next step.</p>
+        <div class="hero-actions">
+          <a class="button" href="/request-help">Tell us what you need <span>→</span></a>
+          <a class="button button-light" href="/track">Track a request</a>
+        </div>
+        <div class="trust-line"><span>Friendly guidance</span><span>Clear next steps</span><span>One place to begin</span></div>
+      </div>
+      <div class="hero-art" aria-label="Illustration of a help request being supported">
+        <div class="art-blob"></div>
+        <div class="help-card">
+          <div class="card-top"><div class="mini-avatar">👋</div><span class="status-pill">Here to help</span></div>
+          <h3>You don't have to figure it out alone.</h3>
+          <p>Share what is happening. We'll help you understand the next step.</p>
+          <div class="progress"><span></span></div>
+          <p>Small steps make a big difference.</p>
+        </div>
+        <div class="floating-note">Your question matters <strong>♥</strong></div>
+      </div>
+    </div>
+  </section>
+  <section class="section" id="services">
+    <div class="container">
+      <div class="section-heading"><span class="eyebrow">How we can help</span><h2>One friendly place to find your next step.</h2><p>We are starting with student and parent assistance, then expanding the HelpMeDost network in phases.</p></div>
+      <div class="service-grid">
+        <article class="service-card"><div class="service-icon">🎓</div><h3>Student Help</h3><p>Guidance with school processes, admissions, forms and student-related questions.</p></article>
+        <article class="service-card"><div class="service-icon">👨‍👩‍👧</div><h3>Parent Guidance</h3><p>Understand options, prepare questions and find reliable information for your child.</p></article>
+        <article class="service-card"><div class="service-icon">🧭</div><h3>Everyday Assistance</h3><p>Tell us what you are trying to do and we will help identify a practical way forward.</p></article>
+        <article class="service-card"><div class="service-icon">💻</div><h3>Digital Support</h3><p>Help understanding online services, digital forms and safe use of technology.</p></article>
+        <article class="service-card"><div class="service-icon">🤝</div><h3>Find the Right Support</h3><p>As the network grows, we aim to connect people with suitable verified partners.</p></article>
+        <article class="service-card"><div class="service-icon">💬</div><h3>Central Helpdesk</h3><p>Start with one request instead of searching in ten different places.</p></article>
+      </div>
+    </div>
+  </section>
+  <section class="section soft-section" id="how-it-works">
+    <div class="container">
+      <div class="section-heading"><span class="eyebrow">Simple by design</span><h2>Getting started is easy.</h2><p>Share only what is needed. We will keep your request organised with a reference number.</p></div>
+      <div class="steps">
+        <article class="step"><span class="step-num">01</span><h3>Tell us what you need</h3><p>Choose a topic and explain your question in a few words.</p></article>
+        <article class="step"><span class="step-num">02</span><h3>Keep your reference</h3><p>After submitting, save your unique request number to check progress.</p></article>
+        <article class="step"><span class="step-num">03</span><h3>Follow the next step</h3><p>Our helpdesk can review the request and update its status.</p></article>
+      </div>
+    </div>
+  </section>
+  <section class="section"><div class="container"><div class="cta-band"><div><h2>Not sure where to begin?</h2><p>That's exactly what the HelpMeDost helpdesk is here for.</p></div><a class="button button-light" href="/request-help">Start a request <span>→</span></a></div></div></section>
+</BaseLayout>
