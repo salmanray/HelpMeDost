@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HelpMeDost Firebase test</title>
+<style>
+body{font:16px system-ui;background:#f3f6fa;color:#182230;margin:0;padding:24px;display:grid;place-items:center;min-height:100vh;box-sizing:border-box}.card{background:white;padding:28px;border:1px solid #dce4ee;border-radius:18px;width:min(100%,540px);box-shadow:0 12px 40px #10203012}h1{margin:8px 0}p{color:#586579;line-height:1.5}.field{margin:14px 0}label{display:block;font-weight:650;margin-bottom:6px}input{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:9px;box-sizing:border-box;font:inherit}button{background:#087e75;color:white;border:0;border-radius:9px;padding:13px 18px;font-weight:700;cursor:pointer;width:100%;margin-top:8px}button:disabled{opacity:.5}.status{background:#eef3f8;border-radius:9px;padding:12px;margin-top:14px;white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px}.note{font-size:12px;color:#687587}
+</style></head><body><main class="card">
+<div style="color:#087e75;font-weight:800;font-size:12px;letter-spacing:.1em">ISOLATED TEST ONLY</div><h1>HelpMeDost Firebase test</h1>
+<p>Paste the Firebase Web App config values from Firebase Console. This page tests Firebase email-link sign-in only; it does not create a HelpMeDost account.</p>
+<div class="field"><label>Firebase API key</label><input id="apiKey" placeholder="AIza..."></div>
+<div class="field"><label>Auth domain</label><input id="authDomain" placeholder="your-project.firebaseapp.com"></div>
+<div class="field"><label>Project ID</label><input id="projectId" placeholder="your-project-id"></div>
+<div class="field"><label>App ID</label><input id="appId" placeholder="1:...:web:..."></div>
+<button id="save">Save test configuration</button>
+<hr style="border:0;border-top:1px solid #e5eaf0;margin:22px 0">
+<div class="field"><label>Your email address</label><input id="email" type="email" placeholder="you@example.com"></div>
+<button id="send">Send sign-in link</button>
+<div id="status" class="status">Step 1: Enter Firebase Web App config and save it.</div>
+<p class="note">Test project only. Do not enter customer data. No Neon database, payment, production session or HelpMeDost account is connected.</p>
+</main><script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+import {getAuth,sendSignInLinkToEmail,isSignInWithEmailLink,signInWithEmailLink} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+const $=id=>document.getElementById(id),key="hmdFirebaseTestConfig",emailKey="hmdFirebaseTestEmail";
+const status=m=>$("status").textContent=m;
+let auth=null;
+function init(){const c=JSON.parse(sessionStorage.getItem(key)||"null");if(!c)throw Error("First enter and save the Firebase config.");auth=getAuth(initializeApp(c));}
+$("save").onclick=()=>{const c={apiKey:$("apiKey").value.trim(),authDomain:$("authDomain").value.trim(),projectId:$("projectId").value.trim(),appId:$("appId").value.trim()};if(Object.values(c).some(v=>!v))return status("Please fill all four config fields.");sessionStorage.setItem(key,JSON.stringify(c));try{init();status("Configuration saved in this browser tab. Now enter your email and send the link.");}catch(e){status(e.message)}};
+$("send").onclick=async()=>{try{if(!auth)init();const email=$("email").value.trim().toLowerCase();if(!email)throw Error("Enter your email address.");await sendSignInLinkToEmail(auth,email,{url:location.origin+location.pathname,handleCodeInApp:true});sessionStorage.setItem(emailKey,email);status("Sign-in link sent to "+email+". Open the email link in this same browser and tab.");}catch(e){status("Error: "+(e.message||e))}};
+if(isSignInWithEmailLink(getAuth(initializeApp({apiKey:"demo",authDomain:location.hostname,projectId:"demo"})),location.href)){/* actual auth initialized after config save */}
+if(location.href.includes("oobCode=")){try{init();const email=sessionStorage.getItem(emailKey)||prompt("Enter the same email address used to request the link");if(!email)throw Error("Email is required.");const result=await signInWithEmailLink(auth,email,location.href);status("SUCCESS: Firebase email-link sign-in completed.\nEmail: "+result.user.email+"\nUID: "+result.user.uid+"\nNo HelpMeDost account/session was created.");sessionStorage.removeItem(emailKey);history.replaceState({},document.title,location.pathname);}catch(e){status("Could not complete sign-in: "+e.message)}}
+</script></body></html>
