@@ -4,44 +4,10 @@ const { title = "HelpMeDost | A little help goes a long way", description = "Fri
 ---
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content={description} />
-    <meta name="theme-color" content="#f7f8fc" />
-    <title>{title}</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
-  </head>
-  <body>
-    <header class="site-header">
-      <div class="container nav-wrap">
-        <a class="brand" href="/" aria-label="HelpMeDost home"><span class="brand-mark">h</span><span>HelpMe<span class="brand-accent">Dost</span></span></a>
-        <nav aria-label="Main navigation">
-          <a href="/#services">Services</a>
-          <a href="/#how-it-works">Kaise kaam karta hai</a>
-          <a href="/track">Request track karein</a>
-          <a href="/plans">Plans</a>
-        </nav>
-        <a class="button button-small desktop-get-help" href="/request-help">Madad chahiye? <span aria-hidden="true">↗</span></a>
-        <details class="mobile-menu">
-          <summary aria-label="Open navigation menu"><span class="menu-icon" aria-hidden="true"></span></summary>
-          <nav class="mobile-menu-panel" aria-label="Mobile navigation">
-            <a href="/">Home</a><a href="/#services">Services</a><a href="/#how-it-works">Kaise kaam karta hai</a><a href="/track">Request track karein</a><a href="/plans">Plans</a><a class="mobile-menu-cta" href="/request-help">Madad shuru karein ↗</a>
-          </nav>
-        </details>
-      </div>
-    </header>
-    <main><slot /></main>
-    <footer class="site-footer">
-      <div class="container footer-inner">
-        <a class="brand" href="/"><span class="brand-mark">h</span><span>HelpMe<span class="brand-accent">Dost</span></span></a>
-        <p>Pareshani koi bhi ho, raasta zaroor milega.</p>
-        <span>© {new Date().getFullYear()} HelpMeDost</span>
-        <a href="/admin" aria-label="Staff admin dashboard">Staff login</a>
-      </div>
-      <div class="container footer-note">HelpMeDost ek assistance platform hai. Yeh emergency, legal, medical ya professional services ka replacement nahi hai.</div>
-    </footer>
-  </body>
-</html>
+<head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="description" content={description} /><meta name="theme-color" content="#f7f8fc" /><title>{title}</title><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" /></head>
+<body><header class="site-header"><div class="container nav-wrap">
+<a class="brand" href="/" aria-label="HelpMeDost home"><span class="brand-mark">h</span><span>HelpMe<span class="brand-accent">Dost</span></span></a>
+<nav aria-label="Main navigation"><a href="/#services">Services</a><a href="/#how-it-works">Kaise kaam karta hai</a><a href="/track">Request track karein</a><a href="/plans">Plans</a><a href="/login">Sign in</a></nav>
+<a class="button button-small desktop-get-help" href="/register">Create account <span aria-hidden="true">↗</span></a>
+<details class="mobile-menu"><summary aria-label="Open navigation menu"><span class="menu-icon" aria-hidden="true"></span></summary><nav class="mobile-menu-panel" aria-label="Mobile navigation"><a href="/">Home</a><a href="/#services">Services</a><a href="/#how-it-works">Kaise kaam karta hai</a><a href="/track">Request track karein</a><a href="/plans">Plans</a><a href="/login">Sign in</a><a href="/register">Create account</a><a class="mobile-menu-cta" href="/request-help">Madad shuru karein ↗</a></nav></details>
+</div></header><main><slot /></main><footer class="site-footer"><div class="container footer-inner"><a class="brand" href="/"><span class="brand-mark">h</span><span>HelpMe<span class="brand-accent">Dost</span></span></a><p>Pareshani koi bhi ho, raasta zaroor milega.</p><span>© {new Date().getFullYear()} HelpMeDost</span><a href="/admin-login" aria-label="Staff admin sign in">Staff login</a></div><div class="container footer-note">HelpMeDost ek assistance platform hai. Yeh emergency, legal, medical ya professional services ka replacement nahi hai.</div></footer></body></html>
