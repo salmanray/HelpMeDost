@@ -22,7 +22,8 @@ export const POST: APIRoute = async (context) => {
     if (Number(rows[0].attempts) >= 5) return json({ error: "Too many incorrect attempts. Please request a new code." }, 429);
     const expected = await createOtpHash(email, otp, env);
     if (rows[0].otp_hash !== expected) {
-      await sql`UPDATE auth_email_otps SET attempts=attempts+1 WHERE id=${rows[0].id}`;
+      const attempt = await sql`UPDATE auth_email_otps SET attempts=attempts+1 WHERE id=${rows[0].id} AND attempts < 5 RETURNING attempts`;
+      if (!attempt.length) return json({ error: "Too many incorrect attempts. Please request a new code." }, 429);
       return json({ error: "Incorrect verification code." }, 400);
     }
     const consumed = await sql`UPDATE auth_email_otps SET consumed_at=now() WHERE id=${rows[0].id} AND consumed_at IS NULL RETURNING id`;
@@ -52,7 +53,7 @@ export const POST: APIRoute = async (context) => {
     }
     const token = await issueSession(context, profiles[0].id, purpose);
     return new Response(JSON.stringify({ ok:true, user:{name:profiles[0].full_name,email:profiles[0].email,role:purpose}, redirectTo: purpose === "admin" ? "/admin" : "/account" }), {
-      status:200, headers:{"Content-Type":"application/json","Cache-Control":"no-store","Set-Cookie":setSessionCookie(token)}
+      status:200, headers:{"Content-Type":"application/json","Cache-Control":"no-store","Set-Cookie":setSessionCookie(token,purpose)}
     });
   } catch (error) {
     console.error("OTP verification failed", error);
