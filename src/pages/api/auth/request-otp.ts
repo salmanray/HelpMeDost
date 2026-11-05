@@ -11,7 +11,7 @@ export const POST: APIRoute = async (context) => {
     const purpose = body.purpose === "admin" ? "admin" : "user";
     if (!validEmail(email)) return json({ error: "Please enter a valid email address." }, 400);
     if (purpose === "user" && body.mode === "register" && !name) return json({ error: "Please enter your name." }, 400);
-    if (purpose === "user" && body.mode === "register" && !/^[6-9]\\d{9}$/.test(mobile)) return json({ error: "Please enter a valid 10-digit Indian mobile number." }, 400);
+    if (purpose === "user" && body.mode === "register" && !/^[6-9]\d{9}$/.test(mobile)) return json({ error: "Please enter a valid 10-digit Indian mobile number." }, 400);
     const env = authEnv(context);
     if (purpose === "admin" && !isAdminEmail(email, env)) return json({ error: "This email is not authorised for admin access." }, 403);
     const sql = getDb(context);
