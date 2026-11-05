@@ -32,7 +32,12 @@ export const PATCH: APIRoute = async (context) => {
     const sql = getDb(context);
     const rows = await sql`UPDATE service_requests SET status = ${status}, updated_at = now() WHERE id = ${id}::uuid RETURNING id`;
     if (!rows.length) return json({ error: "Request not found." }, 404);
-    await sql`INSERT INTO audit_events (entity_type, entity_id, action, details) VALUES ('service_request', ${id}::uuid, 'status_updated', jsonb_build_object('status', ${status}))`;
+
+    try {
+      await sql`INSERT INTO audit_events (entity_type, entity_id, action, details) VALUES ('service_request', ${id}::uuid, 'status_updated', jsonb_build_object('status', ${status}))`;
+    } catch (auditError) {
+      console.error("Request status updated, but audit logging failed", auditError);
+    }
     return json({ ok: true });
   } catch (error) {
     console.error("Admin request update failed", error);
