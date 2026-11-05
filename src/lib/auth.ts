@@ -53,11 +53,13 @@ export async function issueSession(context: APIContext, profileId: string, purpo
   const token = randomHex(32);
   const sql = getDb(context);
   await sql`INSERT INTO auth_sessions (token_hash, profile_id, purpose, expires_at)
-    VALUES (${await digest(token)}, ${profileId}::uuid, ${purpose}, now() + interval '7 days')`;
+    VALUES (${await digest(token)}, ${profileId}::uuid, ${purpose},
+      now() + CASE WHEN ${purpose} = 'admin' THEN interval '30 minutes' ELSE interval '7 days' END)`;
   return token;
 }
-export function setSessionCookie(token: string) {
-  return `hmd_session=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=604800`;
+export function setSessionCookie(token: string, purpose: "user"|"admin" = "user") {
+  const maxAge = purpose === "admin" ? 1800 : 604800;
+  return `hmd_session=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${maxAge}`;
 }
 export function clearSessionCookie() { return "hmd_session=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0"; }
 export { digest, randomHex };
