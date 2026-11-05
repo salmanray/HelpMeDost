@@ -2,32 +2,15 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 <BaseLayout title="Helpdesk dashboard | HelpMeDost">
-  <section class="page-hero"><div class="container"><span class="eyebrow">Helpdesk workspace</span><h1>Request dashboard</h1><p>Private staff workspace. Enter the admin access key configured by the site owner to view and update requests.</p></div></section>
-  <section class="container" style="margin-bottom:80px">
-    <div class="form-shell">
-      <div class="field"><label for="admin-key">Admin access key</label><input id="admin-key" type="password" autocomplete="current-password" placeholder="Enter access key" /></div>
-      <div class="form-actions"><button class="button" id="load-requests">Load requests →</button><span class="form-message" id="admin-message" role="status"></span></div>
-    </div>
-    <div id="request-list" class="admin-list"></div>
-  </section>
-  <script>
-    const keyInput = document.querySelector("#admin-key"); const loadButton = document.querySelector("#load-requests"); const message = document.querySelector("#admin-message"); const list = document.querySelector("#request-list");
-    async function loadRequests() {
-      message.textContent = ""; list.replaceChildren(); loadButton.disabled = true; loadButton.textContent = "Loading…";
-      try {
-        const response = await fetch("/api/admin/requests", { headers: { "x-admin-key": keyInput.value } }); const body = await response.json(); if (!response.ok) throw new Error(body.error || "Could not load requests.");
-        if (!body.requests.length) { list.innerHTML = "<div class='empty-state'>No requests have been submitted yet.</div>"; return; }
-        body.requests.forEach((item) => {
-          const card = document.createElement("article"); card.className = "admin-item";
-          const info = document.createElement("div"); const title = document.createElement("h3"); title.textContent = item.subject; const detail = document.createElement("p"); detail.textContent = item.reference_code + " · " + item.requester_name + " · " + (item.requester_phone || "No phone"); const desc = document.createElement("p"); desc.textContent = item.description; const meta = document.createElement("small"); meta.className = "hint"; meta.textContent = new Date(item.created_at).toLocaleString();
-          info.append(title, detail, desc, meta);
-          const controls = document.createElement("div"); const select = document.createElement("select"); ["submitted","under_review","waiting_for_user","resolved","closed"].forEach((status) => { const option = document.createElement("option"); option.value = status; option.textContent = status.replaceAll("_"," "); option.selected = status === item.status; select.append(option); });
-          select.addEventListener("change", async () => { select.disabled = true; try { const update = await fetch("/api/admin/requests", { method:"PATCH", headers:{"Content-Type":"application/json","x-admin-key":keyInput.value}, body:JSON.stringify({id:item.id,status:select.value}) }); const result = await update.json(); if(!update.ok) throw new Error(result.error || "Update failed"); } catch(error) { message.textContent = error.message; select.value = item.status; } finally { select.disabled = false; } });
-          controls.append(select); card.append(info, controls); list.append(card);
-        });
-      } catch(error) { message.textContent = error.message || "Something went wrong."; }
-      finally { loadButton.disabled = false; loadButton.textContent = "Load requests →"; }
-    }
-    loadButton?.addEventListener("click", loadRequests);
-  </script>
+<section class="page-hero"><div class="container"><span class="eyebrow">Helpdesk workspace</span><h1>Request dashboard</h1><p>Secure staff workspace. Sign in with your authorised admin email and verification code.</p></div></section>
+<section class="container" style="margin-bottom:80px">
+<div class="form-shell"><div id="admin-identity">Checking admin session…</div><div class="form-actions"><button class="button" id="load-requests">Load requests →</button><button class="button button-light" id="sign-out">Sign out</button><span class="form-message" id="admin-message" role="status"></span></div></div>
+<div id="request-list" class="admin-list"></div>
+</section>
+<script>
+const identity=document.querySelector("#admin-identity"),loadButton=document.querySelector("#load-requests"),logout=document.querySelector("#sign-out"),message=document.querySelector("#admin-message"),list=document.querySelector("#request-list");
+async function checkAdmin(){const r=await fetch("/api/auth/me");const d=await r.json();if(!r.ok||d.user?.purpose!=="admin"||d.user?.user_type!=="admin"){location.href="/admin-login";return false;}identity.textContent="Signed in as "+d.user.full_name+" ("+d.user.email+")";return true;}
+async function loadRequests(){message.textContent="";list.replaceChildren();loadButton.disabled=true;loadButton.textContent="Loading…";try{const response=await fetch("/api/admin/requests");const body=await response.json();if(!response.ok)throw Error(body.error||"Could not load requests.");if(!body.requests.length){list.innerHTML="<div class='empty-state'>No requests have been submitted yet.</div>";return;}body.requests.forEach(item=>{const card=document.createElement("article");card.className="admin-item";const info=document.createElement("div"),title=document.createElement("h3"),detail=document.createElement("p"),desc=document.createElement("p"),meta=document.createElement("small");title.textContent=item.subject;detail.textContent=item.reference_code+" · "+item.requester_name+" · "+(item.requester_phone||"No phone");desc.textContent=item.description;meta.className="hint";meta.textContent=new Date(item.created_at).toLocaleString();info.append(title,detail,desc,meta);const controls=document.createElement("div"),select=document.createElement("select");["submitted","under_review","waiting_for_user","resolved","closed"].forEach(status=>{const option=document.createElement("option");option.value=status;option.textContent=status.replaceAll("_"," ");option.selected=status===item.status;select.append(option);});select.addEventListener("change",async()=>{select.disabled=true;try{const update=await fetch("/api/admin/requests",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:item.id,status:select.value})});const result=await update.json();if(!update.ok)throw Error(result.error||"Update failed");}catch(error){message.textContent=error.message;select.value=item.status;}finally{select.disabled=false;}});controls.append(select);card.append(info,controls);list.append(card);});}catch(error){message.textContent=error.message||"Something went wrong.";}finally{loadButton.disabled=false;loadButton.textContent="Load requests →";}}
+loadButton?.addEventListener("click",loadRequests);logout?.addEventListener("click",async()=>{await fetch("/api/auth/logout",{method:"POST"});location.href="/admin-login";});checkAdmin().then(ok=>{if(ok)loadRequests();});
+</script>
 </BaseLayout>
