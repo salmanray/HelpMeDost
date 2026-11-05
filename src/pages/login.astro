@@ -1,0 +1,19 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+<BaseLayout title="Sign in | HelpMeDost">
+<section class="page-hero"><div class="container"><span class="eyebrow">Welcome back</span><h1>Sign in to HelpMeDost</h1><p>Use your email address. We’ll send you a one-time verification code.</p></div></section>
+<section class="container track-shell"><form class="form-shell" id="auth-form">
+<div class="field"><label for="email">Email address</label><input id="email" type="email" required autocomplete="email" placeholder="you@example.com"/></div>
+<div class="field" id="name-field" hidden><label for="name">Your name</label><input id="name" maxlength="120" autocomplete="name" placeholder="Full name"/></div>
+<div class="field" id="otp-field" hidden><label for="otp">6-digit email code</label><input id="otp" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" autocomplete="one-time-code" placeholder="000000"/></div>
+<div class="form-actions"><button class="button" id="send" type="button">Send verification code →</button><button class="button" id="verify" type="submit" hidden>Verify and sign in →</button><span class="form-message" id="message" role="status"></span></div>
+<p class="hint">New to HelpMeDost? <a href="/register">Create an account</a></p>
+</form></section>
+<script>
+const form=document.querySelector("#auth-form"),email=document.querySelector("#email"),name=document.querySelector("#name"),otp=document.querySelector("#otp"),nameField=document.querySelector("#name-field"),otpField=document.querySelector("#otp-field"),send=document.querySelector("#send"),verify=document.querySelector("#verify"),message=document.querySelector("#message");
+let mode="login";
+document.querySelector("#send")?.addEventListener("click",async()=>{message.textContent="";try{const r=await fetch("/api/auth/request-otp",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:email.value,purpose:"user",mode})});const d=await r.json();if(!r.ok)throw Error(d.error);otpField.hidden=false;verify.hidden=false;send.hidden=true;message.textContent=d.message;}catch(e){message.textContent=e.message||"Unable to send code.";}});
+form?.addEventListener("submit",async e=>{e.preventDefault();try{const r=await fetch("/api/auth/verify-otp",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:email.value,otp:otp.value,purpose:"user"})});const d=await r.json();if(!r.ok)throw Error(d.error);location.href=d.redirectTo;}catch(e){message.textContent=e.message||"Verification failed."; }});
+</script>
+</BaseLayout>
