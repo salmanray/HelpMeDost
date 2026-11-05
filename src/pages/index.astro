@@ -1,64 +1,68 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import "../styles/homepage.css";
 ---
-<BaseLayout>
-  <section class="hero">
-    <div class="container hero-grid">
-      <div>
-        <span class="eyebrow">Aapka apna help platform</span>
-        <h1>Pareshani koi bhi ho, <em>raasta zaroor milega.</em></h1>
-        <p class="hero-copy">Kabhi-kabhi ek chhoti si problem bhi bahut badi lagne lagti hai. Samajh nahi aata kahan jaana hai, kisse poochhna hai ya shuruaat kaise karni hai. Aap apni baat bataiye — HelpMeDost aapko sahi information aur agla practical step samajhne mein madad karega.</p>
-        <div class="hero-actions">
-          <a class="button" href="/request-help">Mujhe madad chahiye <span>→</span></a>
-          <a class="button button-light" href="/track">Apni request track karein</a>
+<BaseLayout
+  title="HelpMeDost | Pareshani koi bhi ho, raasta zaroor milega"
+  description="Students aur parents ke liye friendly, practical assistance. Apni problem batayein, clear next steps aur sahi guidance paayein."
+>
+  <section class="hm-hero">
+    <div class="hm-container hm-hero-grid">
+      <div class="hm-hero-copy">
+        <div class="hm-kicker"><span class="hm-kicker-dot"></span> Aapka apna help platform</div>
+        <h1>Har mushkil ka<br/><span>ek dostana raasta.</span></h1>
+        <p class="hm-lead">School admission ho, kisi form mein confusion ho ya samajh na aaye kahan se shuru karein — apni baat humein batayein. Hum aapko sahi information aur agla practical step samajhne mein madad karenge.</p>
+        <div class="hm-actions">
+          <a class="hm-btn hm-btn-primary" href="/request-help">Madad shuru karein <span aria-hidden="true">↗</span></a>
+          <a class="hm-btn hm-btn-quiet" href="/track"><span class="hm-play" aria-hidden="true">⌕</span> Request track karein</a>
         </div>
-        <div class="trust-line"><span>Aapki baat important hai</span><span>Saaf aur useful guidance</span><span>Ek jagah se shuruaat</span></div>
+        <div class="hm-reassurance"><span>✓ Aasaan process</span><span>✓ Clear guidance</span><span>✓ Ek jagah se shuruaat</span></div>
       </div>
-      <div class="hero-art" aria-label="HelpMeDost support illustration">
-        <div class="art-blob"></div>
-        <div class="help-card">
-          <div class="card-top"><div class="mini-avatar">👋</div><span class="status-pill">Hum sun rahe hain</span></div>
-          <h3>Aapko har cheez akele figure out karne ki zaroorat nahi.</h3>
-          <p>Jo problem hai, humein batayein. Hum use samajhne aur agla step dhoondhne mein aapki help karenge.</p>
-          <div class="progress"><span></span></div>
-          <p>Ek chhota step bhi aage badhne ki shuruaat hai.</p>
+      <div class="hm-hero-visual" aria-label="A friendly illustration representing help and guidance">
+        <div class="hm-orbit hm-orbit-one"></div><div class="hm-orbit hm-orbit-two"></div>
+        <div class="hm-sun"></div>
+        <div class="hm-visual-card">
+          <div class="hm-visual-top"><div class="hm-avatar">h<span>.</span></div><div><strong>HelpMeDost</strong><small>Yahin se shuruaat karein</small></div><span class="hm-online"></span></div>
+          <div class="hm-chat hm-chat-user">Mujhe samajh nahi aa raha kya karun…</div>
+          <div class="hm-chat hm-chat-answer"><span class="hm-answer-mark">✓</span><div><strong>Koi baat nahi. Hum hain na.</strong><p>Chaliye, ek-ek step samajhte hain.</p></div></div>
+          <div class="hm-card-bottom"><span>Ek chhota step. Nayi shuruaat.</span><span>♥</span></div>
         </div>
-        <div class="floating-note">Aapki baat maayne rakhti hai <strong>♥</strong></div>
+        <div class="hm-float hm-float-top"><span>✦</span> Guidance that feels human</div>
+        <div class="hm-float hm-float-bottom"><span class="hm-float-icon">↗</span><div><strong>One step at a time</strong><small>Aap akele nahi hain</small></div></div>
+      </div>
+    </div>
+    <div class="hm-hero-wash"></div>
+  </section>
+
+  <section class="hm-trust-strip">
+    <div class="hm-container hm-trust-inner"><span>HELP, WITHOUT THE HASSLE</span><i></i><span>Simple language</span><i></i><span>Practical next steps</span><i></i><span>People-first support</span></div>
+  </section>
+
+  <section class="hm-section" id="services">
+    <div class="hm-container">
+      <div class="hm-section-head"><div><div class="hm-kicker">Aapko kis cheez mein help chahiye?</div><h2>Jahan confusion ho,<br/><span>wahin se shuru karte hain.</span></h2></div><p>Abhi hamari pehli priority Student Help Portal hai. Baaki support areas ko hum carefully, step-by-step add karenge.</p></div>
+      <div class="hm-service-grid">
+        <a class="hm-service hm-service-featured" href="/request-help"><div class="hm-service-icon hm-icon-blue">✳</div><span class="hm-service-tag">Launch focus</span><h3>Student Help Portal</h3><p>School admission, EWS guidance, forms aur education-related processes ko samajhne mein practical help.</p><span class="hm-service-link">Student help explore karein <b>↗</b></span></a>
+        <article class="hm-service"><div class="hm-service-icon hm-icon-peach">⌂</div><h3>Parent Guidance</h3><p>Bachchon ki education aur school matters mein information aur available options samajhne mein support.</p><span class="hm-coming">Planned service</span></article>
+        <article class="hm-service"><div class="hm-service-icon hm-icon-mint">◎</div><h3>Digital Assistance</h3><p>Online forms, digital services aur technology ko safely use karne ki basic guidance.</p><span class="hm-coming">Planned service</span></article>
+        <article class="hm-service"><div class="hm-service-icon hm-icon-lilac">♧</div><h3>Everyday Guidance</h3><p>Jab process confusing lage, possible next steps aur relevant information tak pahunchne mein help.</p><span class="hm-coming">Planned service</span></article>
+      </div>
+      <div class="hm-services-note"><span>✦</span> More support areas will be introduced in phases. We’ll keep the experience simple and useful.</div>
+    </div>
+  </section>
+
+  <section class="hm-how" id="how-it-works">
+    <div class="hm-container">
+      <div class="hm-section-head hm-how-head"><div><div class="hm-kicker">Bas teen simple steps</div><h2>Madad maangna<br/><span>itna mushkil nahi.</span></h2></div><p>Aap apni baat share karein. Hum request ko organise karenge taaki aap uska update aasani se dekh sakein.</p></div>
+      <div class="hm-steps">
+        <article class="hm-step"><div class="hm-step-top"><span>01</span><div class="hm-step-icon">✎</div></div><h3>Apni baat batayein</h3><p>Problem ya question ko simple words mein share karein. Jitni zaroori details ho, utni hi dein.</p></article>
+        <article class="hm-step"><div class="hm-step-top"><span>02</span><div class="hm-step-icon">⌑</div></div><h3>Reference number paayein</h3><p>Request submit hone par unique reference number milega. Use sambhal kar rakhein.</p></article>
+        <article class="hm-step"><div class="hm-step-top"><span>03</span><div class="hm-step-icon">↗</div></div><h3>Update check karein</h3><p>Apne reference number se request ka status aur available updates check karein.</p></article>
       </div>
     </div>
   </section>
 
-  <section class="section" id="services">
-    <div class="container">
-      <div class="section-heading"><span class="eyebrow">Hum kis tarah help kar sakte hain?</span><h2>Har zaroorat ke liye, ek friendly starting point.</h2><p>Filhal hum Student Help Portal se shuruaat kar rahe hain. Dheere-dheere aur services aur support options add kiye jayenge.</p></div>
-      <div class="service-grid">
-        <article class="service-card"><div class="service-icon">🎓</div><h3>Student Help</h3><p>School admission, forms, education-related processes aur student questions mein guidance.</p></article>
-        <article class="service-card"><div class="service-icon">👨‍👩‍👧</div><h3>Parent Guidance</h3><p>Bachchon ki education aur school matters mein options samajhne aur sahi information dhoondhne mein help.</p></article>
-        <article class="service-card"><div class="service-icon">🧭</div><h3>Everyday Assistance</h3><p>Kisi process ko lekar confusion hai? Apni baat share karein, hum possible next steps samajhne mein help karenge.</p></article>
-        <article class="service-card"><div class="service-icon">💻</div><h3>Digital Support</h3><p>Online forms, digital services aur technology ko safely use karne se judi basic guidance.</p></article>
-        <article class="service-card"><div class="service-icon">🤝</div><h3>Sahi Support Tak Pahunch</h3><p>Jahan zaroorat ho, wahan suitable aur verified support options tak pahunchne mein madad.</p></article>
-        <article class="service-card"><div class="service-icon">💬</div><h3>Central Helpdesk</h3><p>Alag-alag jagah bhatakne ke bajaye, apni request ek jagah se shuru karein.</p></article>
-      </div>
-    </div>
-  </section>
-
-  <section class="section soft-section" id="how-it-works">
-    <div class="container">
-      <div class="section-heading"><span class="eyebrow">Process simple rakha hai</span><h2>Madad maangne ke liye bas 3 steps.</h2><p>Aapko apni problem baar-baar explain na karni pade, isliye har request ko ek unique reference number diya jata hai.</p></div>
-      <div class="steps">
-        <article class="step"><span class="step-num">01</span><h3>Apni baat batayein</h3><p>Topic choose karein aur simple words mein batayein ki aapko kis cheez mein help chahiye.</p></article>
-        <article class="step"><span class="step-num">02</span><h3>Reference number sambhal kar rakhein</h3><p>Request submit hone ke baad mile unique number ko save kar lein.</p></article>
-        <article class="step"><span class="step-num">03</span><h3>Update check karein</h3><p>Apne reference number se request ka status check kar sakte hain.</p></article>
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="container">
-      <div class="cta-band">
-        <div><h2>Samajh nahi aa raha kahan se shuru karein?</h2><p>Koi baat nahi. Pehla step bas apni problem batana hai. Hum aapki request ko sahi direction dene ki koshish karenge.</p></div>
-        <a class="button button-light" href="/request-help">Apni baat share karein <span>→</span></a>
-      </div>
-    </div>
+  <section class="hm-bottom-cta">
+    <div class="hm-container"><div class="hm-cta-card"><div class="hm-cta-decoration">h.</div><div class="hm-cta-copy"><div class="hm-kicker hm-kicker-light">Aaj hi pehla step lein</div><h2>Pareshani koi bhi ho,<br/>raasta zaroor milega.</h2><p>Aapki baat suni jaana zaroori hai. Shuruaat yahin se karein.</p></div><a class="hm-btn hm-btn-white" href="/request-help">Talk to HelpMeDost <span>↗</span></a></div></div>
   </section>
 </BaseLayout>
