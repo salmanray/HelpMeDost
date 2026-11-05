@@ -73,8 +73,7 @@ export const POST: APIRoute = async (context) => {
       event_claim AS (
         INSERT INTO razorpay_webhook_events (event_id, event_type)
         SELECT ${eventId}, 'payment.captured'
-        WHERE EXISTS (SELECT 1 FROM matching_subscription)
-           OR EXISTS (SELECT 1 FROM matching_query)
+        WHERE (SELECT count(*) FROM matching_subscription) + (SELECT count(*) FROM matching_query) = 1
         ON CONFLICT (event_id) DO NOTHING
         RETURNING event_id
       ),
