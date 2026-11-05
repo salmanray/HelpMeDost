@@ -2,17 +2,30 @@
 
 HelpMeDost is a phased assistance platform connecting students, parents, professionals, and service partners.
 
-## Initial launch
+## Authentication architecture (free-first)
+- Firebase Authentication Spark plan: Google sign-in and Email/Password.
+- Email-link/passwordless sign-in is not used.
+- Firebase handles email verification and password reset; no Resend OTP is required for login.
+- Cloudflare Pages hosts the application; Neon PostgreSQL stores HelpMeDost profiles and application records.
+- The server verifies Firebase ID tokens through Firebase Identity Toolkit before issuing an HttpOnly HelpMeDost session.
+- Admin access is separately restricted by the server-side ADMIN_EMAILS allowlist.
 
+## Cloudflare configuration
+Set the following build variables from Firebase Console > Project settings > Your apps > Web app:
+- PUBLIC_FIREBASE_API_KEY
+- PUBLIC_FIREBASE_AUTH_DOMAIN
+- PUBLIC_FIREBASE_PROJECT_ID
+- PUBLIC_FIREBASE_APP_ID
+
+Set runtime variables:
+- FIREBASE_API_KEY (same Firebase Web API key)
+- FIREBASE_PROJECT_ID
+- ADMIN_EMAILS
+
+Keep DATABASE_URL as an encrypted secret. Do not add Firebase service-account private keys or expose database credentials in browser code.
+
+## Initial launch
 The first release focuses on the Student Help Portal. The wider platform will be developed in phases, following the approved HelpMeDost product blueprint.
 
-## Project status
-
-- Repository: `salmanray/HelpMeDost`
-- Initial database schema: PostgreSQL on Neon
-- Website foundation: homepage, help request form, request tracking and private helpdesk dashboard.
-
-
 ## Hosting
-
-Cloudflare Pages project: `helpmedost` (`helpmedost.pages.dev`).
+Cloudflare Pages project: helpmedost (helpmedost.pages.dev).
