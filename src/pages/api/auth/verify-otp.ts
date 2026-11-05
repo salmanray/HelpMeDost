@@ -8,8 +8,10 @@ export const POST: APIRoute = async (context) => {
     const email = normaliseEmail(body.email);
     const otp = cleanText(body.otp, 6);
     const name = cleanText(body.name, 120);
+    const mobile = cleanText(body.mobile, 10);
     const purpose = body.purpose === "admin" ? "admin" : "user";
     if (!validEmail(email) || !/^\d{6}$/.test(otp)) return json({ error: "Enter your email and six-digit verification code." }, 400);
+    if (purpose === "user" && body.mobile !== undefined && !/^[6-9]\d{9}$/.test(mobile)) return json({ error: "Please enter a valid 10-digit Indian mobile number." }, 400);
     const env = authEnv(context);
     if (purpose === "admin" && !isAdminEmail(email, env)) return json({ error: "This email is not authorised for admin access." }, 403);
     const sql = getDb(context);
@@ -23,12 +25,13 @@ export const POST: APIRoute = async (context) => {
       await sql`UPDATE auth_email_otps SET attempts=attempts+1 WHERE id=${rows[0].id}`;
       return json({ error: "Incorrect verification code." }, 400);
     }
-    await sql`UPDATE auth_email_otps SET consumed_at=now() WHERE id=${rows[0].id} AND consumed_at IS NULL`;
+    const consumed = await sql`UPDATE auth_email_otps SET consumed_at=now() WHERE id=${rows[0].id} AND consumed_at IS NULL RETURNING id`;
+    if (!consumed.length) return json({ error: "This code has already been used. Please request a new one." }, 409);
     let profiles = await sql`SELECT id, full_name, email, user_type FROM user_profiles WHERE lower(email)=${email} AND status='active' LIMIT 1`;
     if (purpose === "user" && !profiles.length) {
       if (!name) return json({ error: "Please register with your name first." }, 400);
-      profiles = await sql`INSERT INTO user_profiles(auth_subject,full_name,email,user_type,status)
-        VALUES(${"email:"+email},${name},${email},'public','active')
+      profiles = await sql`INSERT INTO user_profiles(auth_subject,full_name,email,mobile_number,user_type,status)
+        VALUES(${"email:"+email},${name},${email},${mobile || null},'public','active')
         ON CONFLICT (email) DO UPDATE SET email=EXCLUDED.email
         RETURNING id,full_name,email,user_type`;
     }
@@ -39,6 +42,11 @@ export const POST: APIRoute = async (context) => {
         RETURNING id,full_name,email,user_type`;
     }
     if (!profiles.length) return json({ error: "Account could not be found. Please register first." }, 404);
+    if (purpose === "user" && mobile) {
+      const mobileUpdate = await sql`UPDATE user_profiles SET mobile_number=${mobile}
+        WHERE id=${profiles[0].id} AND (mobile_number IS NULL OR mobile_number=${mobile}) RETURNING id`;
+      if (!mobileUpdate.length) return json({ error: "This mobile number is already linked to another account." }, 409);
+    }
     if (purpose === "admin" && profiles[0].user_type !== "admin") {
       await sql`UPDATE user_profiles SET user_type='admin' WHERE id=${profiles[0].id}`;
     }
