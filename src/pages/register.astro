@@ -1,18 +1,52 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
-<BaseLayout title="Create account | HelpMeDost">
-<section class="page-hero"><div class="container"><span class="eyebrow">Get started</span><h1>Create your HelpMeDost account</h1><p>Register with your name and email. Verify your email to activate your account.</p></div></section>
-<section class="container track-shell"><form class="form-shell" id="auth-form">
-<div class="field"><label for="name">Full name</label><input id="name" required maxlength="120" autocomplete="name" placeholder="Your name"/></div>
-<div class="field"><label for="email">Email address</label><input id="email" type="email" required autocomplete="email" placeholder="you@example.com"/></div>
-<div class="field" id="otp-field" hidden><label for="otp">6-digit email code</label><input id="otp" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" autocomplete="one-time-code" placeholder="000000"/></div>
-<div class="form-actions"><button class="button" id="send" type="button">Verify email →</button><button class="button" id="verify" type="submit" hidden>Create account →</button><span class="form-message" id="message" role="status"></span></div>
-<p class="hint">Already registered? <a href="/login">Sign in</a></p>
-</form></section>
-<script>
-const form=document.querySelector("#auth-form"),email=document.querySelector("#email"),name=document.querySelector("#name"),otp=document.querySelector("#otp"),otpField=document.querySelector("#otp-field"),send=document.querySelector("#send"),verify=document.querySelector("#verify"),message=document.querySelector("#message");
-send?.addEventListener("click",async()=>{message.textContent="";try{const r=await fetch("/api/auth/request-otp",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:email.value,name:name.value,purpose:"user",mode:"register"})});const d=await r.json();if(!r.ok)throw Error(d.error);otpField.hidden=false;verify.hidden=false;send.hidden=true;message.textContent=d.message;}catch(e){message.textContent=e.message||"Unable to send code.";}});
-form?.addEventListener("submit",async e=>{e.preventDefault();try{const r=await fetch("/api/auth/verify-otp",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:email.value,name:name.value,otp:otp.value,purpose:"user"})});const d=await r.json();if(!r.ok)throw Error(d.error);location.href=d.redirectTo;}catch(e){message.textContent=e.message||"Verification failed."; }});
-</script>
+<BaseLayout title="Create your account | HelpMeDost" description="Create your HelpMeDost account to manage requests and get support.">
+  <section class="auth-page">
+    <div class="auth-glow auth-glow-one"></div><div class="auth-glow auth-glow-two"></div>
+    <div class="container auth-layout">
+      <aside class="auth-intro">
+        <span class="eyebrow">Aapka apna helpdesk</span>
+        <h1>Har mushkil ka ek <em>dostana raasta.</em></h1>
+        <p>Apna account banayein aur apni requests, updates aur madad ka safar ek hi jagah manage karein.</p>
+        <div class="auth-points">
+          <div><span class="auth-point-icon">✓</span><span><strong>Simple & secure</strong><small>Email verification se account secure rakhein.</small></span></div>
+          <div><span class="auth-point-icon">◎</span><span><strong>Sab kuch ek jagah</strong><small>Requests aur unke updates aasani se dekhein.</small></span></div>
+          <div><span class="auth-point-icon">♡</span><span><strong>Help, with a human touch</strong><small>Jab zaroorat ho, raasta dhoondhne mein madad.</small></span></div>
+        </div>
+      </aside>
+      <section class="auth-card" aria-labelledby="register-title">
+        <div class="auth-card-head"><span class="auth-logo">h</span><span class="auth-step">STEP 1 OF 2 · ACCOUNT DETAILS</span></div>
+        <h2 id="register-title">Create your account</h2>
+        <p class="auth-subtitle">Shuru karne ke liye apni details fill karein.</p>
+        <form id="auth-form" novalidate>
+          <div class="field"><label for="name">Full name</label><input id="name" name="name" required maxlength="120" autocomplete="name" placeholder="Enter your full name"/></div>
+          <div class="field"><label for="email">Email address</label><input id="email" name="email" type="email" required autocomplete="email" placeholder="you@example.com"/></div>
+          <div class="field"><label for="mobile">Mobile number</label><div class="phone-input"><span>🇮🇳 +91</span><input id="mobile" name="mobile" type="tel" inputmode="numeric" autocomplete="tel-national" maxlength="10" pattern="[6-9][0-9]{9}" placeholder="10-digit mobile number" required/></div><small class="field-hint">Indian mobile number, 10 digits.</small></div>
+          <div class="field" id="otp-field" hidden><label for="otp">Email verification code</label><input id="otp" name="otp" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" autocomplete="one-time-code" placeholder="Enter 6-digit code"/></div>
+          <div class="auth-terms"><span>🔒</span><span>We’ll send a one-time code to verify your email. Your details are handled securely.</span></div>
+          <div class="auth-actions"><button class="button auth-submit" id="send" type="button">Continue with email verification <span>→</span></button><button class="button auth-submit" id="verify" type="submit" hidden>Verify & create account <span>→</span></button><p class="form-message" id="message" role="status" aria-live="polite"></p></div>
+        </form>
+        <p class="auth-switch">Already have an account? <a href="/login">Sign in</a></p>
+        <p class="auth-legal">By continuing, you agree to our Terms of Service and Privacy Policy.</p>
+      </section>
+    </div>
+  </section>
+  <script>
+    const form=document.querySelector("#auth-form"),email=document.querySelector("#email"),name=document.querySelector("#name"),mobile=document.querySelector("#mobile"),otp=document.querySelector("#otp"),otpField=document.querySelector("#otp-field"),send=document.querySelector("#send"),verify=document.querySelector("#verify"),message=document.querySelector("#message");
+    const setMessage=(text,isError=false)=>{message.textContent=text;message.dataset.state=isError?"error":"success";};
+    mobile?.addEventListener("input",()=>{mobile.value=mobile.value.replace(/\D/g,"").slice(0,10);});
+    send?.addEventListener("click",async()=>{
+      setMessage("");
+      if(!form.reportValidity())return;
+      if(!/^[6-9]\d{9}$/.test(mobile.value)){setMessage("Please enter a valid 10-digit Indian mobile number.",true);mobile.focus();return;}
+      send.disabled=true;send.textContent="Sending verification code…";
+      try{const r=await fetch("/api/auth/request-otp",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:email.value,name:name.value,mobile:mobile.value,purpose:"user",mode:"register"})});const d=await r.json();if(!r.ok)throw Error(d.error||"Unable to send code.");otpField.hidden=false;verify.hidden=false;send.hidden=true;otp.required=true;otp.focus();setMessage(d.message||"Verification code sent. Please check your email.");}
+      catch(e){setMessage(e.message||"Unable to send code.",true);send.disabled=false;send.innerHTML='Continue with email verification <span>→</span>';}
+    });
+    form?.addEventListener("submit",async e=>{e.preventDefault();setMessage("");if(!/^[6-9]\d{9}$/.test(mobile.value)){setMessage("Please enter a valid 10-digit Indian mobile number.",true);return;}verify.disabled=true;verify.textContent="Verifying…";
+      try{const r=await fetch("/api/auth/verify-otp",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:email.value,name:name.value,mobile:mobile.value,otp:otp.value,purpose:"user"})});const d=await r.json();if(!r.ok)throw Error(d.error||"Verification failed.");location.href=d.redirectTo||"/account";}
+      catch(e){setMessage(e.message||"Verification failed.",true);verify.disabled=false;verify.innerHTML='Verify & create account <span>→</span>';}
+    });
+  </script>
 </BaseLayout>
