@@ -1,8 +1,8 @@
-import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+import { initializeApp, getApps } from "firebase/app";
 import {
   getAuth, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword,
   signInWithPopup, sendEmailVerification, sendPasswordResetEmail, updateProfile, signOut
-} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+} from "firebase/auth";
 
 const config = {
   apiKey: import.meta.env.PUBLIC_FIREBASE_API_KEY,
