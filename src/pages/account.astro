@@ -1,0 +1,11 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+<BaseLayout title="My account | HelpMeDost">
+<section class="page-hero"><div class="container"><span class="eyebrow">Your space</span><h1>My HelpMeDost account</h1><p>Welcome. Your personal dashboard will show your requests and account activity here.</p></div></section>
+<section class="container track-shell"><div class="form-shell"><div id="account-info">Checking your sign-in…</div><div class="form-actions"><a class="button button-light" href="/request-help">Submit a help request →</a><button class="button" id="logout">Sign out</button></div></div></section>
+<script>
+const info=document.querySelector("#account-info");fetch("/api/auth/me").then(async r=>{const d=await r.json();if(!r.ok){location.href="/login";return;}info.textContent="Signed in as "+d.user.full_name+" ("+d.user.email+")";}).catch(()=>{location.href="/login";});
+document.querySelector("#logout")?.addEventListener("click",async()=>{await fetch("/api/auth/logout",{method:"POST"});location.href="/login";});
+</script>
+</BaseLayout>
