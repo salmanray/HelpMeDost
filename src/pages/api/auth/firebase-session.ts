@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
-import { getDb, json, cleanText } from "../../../../lib/db";
-import { authEnv, isAdminEmail, issueSession, setSessionCookie, verifyFirebaseIdToken } from "../../../../lib/auth";
+import { getDb, json, cleanText } from "../../../lib/db";
+import { authEnv, isAdminEmail, issueSession, setSessionCookie, verifyFirebaseIdToken } from "../../../lib/auth";
 
 export const POST: APIRoute = async (context) => {
   try {
