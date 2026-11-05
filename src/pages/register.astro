@@ -2,51 +2,47 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 <BaseLayout title="Create your account | HelpMeDost" description="Create your HelpMeDost account to manage requests and get support.">
-  <section class="auth-page">
-    <div class="auth-glow auth-glow-one"></div><div class="auth-glow auth-glow-two"></div>
-    <div class="container auth-layout">
-      <aside class="auth-intro">
-        <span class="eyebrow">Aapka apna helpdesk</span>
-        <h1>Har mushkil ka ek <em>dostana raasta.</em></h1>
-        <p>Apna account banayein aur apni requests, updates aur madad ka safar ek hi jagah manage karein.</p>
-        <div class="auth-points">
-          <div><span class="auth-point-icon">✓</span><span><strong>Simple & secure</strong><small>Email verification se account secure rakhein.</small></span></div>
-          <div><span class="auth-point-icon">◎</span><span><strong>Sab kuch ek jagah</strong><small>Requests aur unke updates aasani se dekhein.</small></span></div>
-          <div><span class="auth-point-icon">♡</span><span><strong>Help, with a human touch</strong><small>Jab zaroorat ho, raasta dhoondhne mein madad.</small></span></div>
-        </div>
-      </aside>
-      <section class="auth-card" aria-labelledby="register-title">
-        <div class="auth-card-head"><span class="auth-logo">h</span><span class="auth-step">STEP 1 OF 2 · ACCOUNT DETAILS</span></div>
-        <h2 id="register-title">Create your account</h2>
-        <p class="auth-subtitle">Shuru karne ke liye apni details fill karein.</p>
-        <form id="auth-form" novalidate>
-          <div class="field"><label for="name">Full name</label><input id="name" name="name" required maxlength="120" autocomplete="name" placeholder="Enter your full name"/></div>
-          <div class="field"><label for="email">Email address</label><input id="email" name="email" type="email" required autocomplete="email" placeholder="you@example.com"/></div>
-          <div class="field"><label for="mobile">Mobile number</label><div class="phone-input"><span>🇮🇳 +91</span><input id="mobile" name="mobile" type="tel" inputmode="numeric" autocomplete="tel-national" maxlength="10" pattern="[6-9][0-9]{9}" placeholder="10-digit mobile number" required/></div><small class="field-hint">Indian mobile number, 10 digits.</small></div>
-          <div class="field" id="otp-field" hidden><label for="otp">Email verification code</label><input id="otp" name="otp" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" autocomplete="one-time-code" placeholder="Enter 6-digit code"/></div>
-          <div class="auth-terms"><span>🔒</span><span>We’ll send a one-time code to verify your email. Your details are handled securely.</span></div>
-          <div class="auth-actions"><button class="button auth-submit" id="send" type="button">Continue with email verification <span>→</span></button><button class="button auth-submit" id="verify" type="submit" hidden>Verify & create account <span>→</span></button><p class="form-message" id="message" role="status" aria-live="polite"></p></div>
-        </form>
-        <p class="auth-switch">Already have an account? <a href="/login">Sign in</a></p>
-        <p class="auth-legal">By continuing, you agree to our Terms of Service and Privacy Policy.</p>
-      </section>
-    </div>
+<section class="auth-page"><div class="container auth-layout">
+  <aside class="auth-intro"><span class="eyebrow">Aapka apna helpdesk</span><h1>Har mushkil ka ek <em>dostana raasta.</em></h1><p>Apna account banayein aur apni requests, updates aur madad ka safar ek hi jagah manage karein.</p></aside>
+  <section class="auth-card" aria-labelledby="register-title">
+    <div class="auth-card-head"><span class="auth-logo">h</span><span class="auth-step">FREE ACCOUNT</span></div>
+    <h2 id="register-title">Create your account</h2><p class="auth-subtitle">Google ya email-password se shuru karein. Koi paid OTP nahi.</p>
+    <button class="button auth-submit" id="google" type="button">Continue with Google</button>
+    <div class="field" style="text-align:center;margin:18px 0">— or register with email —</div>
+    <form id="register-form" novalidate>
+      <div class="field"><label for="name">Full name</label><input id="name" required maxlength="120" autocomplete="name" placeholder="Enter your full name"/></div>
+      <div class="field"><label for="email">Email address</label><input id="email" type="email" required autocomplete="email" placeholder="you@example.com"/></div>
+      <div class="field"><label for="mobile">Mobile number</label><div class="phone-input"><span>🇮🇳 +91</span><input id="mobile" type="tel" inputmode="numeric" maxlength="10" pattern="[6-9][0-9]{9}" placeholder="10-digit mobile number" required/></div></div>
+      <div class="field"><label for="password">Password</label><input id="password" type="password" minlength="8" required autocomplete="new-password" placeholder="At least 8 characters"/></div>
+      <button class="button auth-submit" id="submit" type="submit">Create free account →</button>
+    </form>
+    <p id="message" class="form-message" role="status" aria-live="polite"></p>
+    <p class="auth-switch">Already have an account? <a href="/login">Sign in</a></p>
+    <p class="auth-legal">We’ll ask you to verify your email. No email-link login or paid OTP service is used.</p>
   </section>
-  <script>
-    const form=document.querySelector("#auth-form"),email=document.querySelector("#email"),name=document.querySelector("#name"),mobile=document.querySelector("#mobile"),otp=document.querySelector("#otp"),otpField=document.querySelector("#otp-field"),send=document.querySelector("#send"),verify=document.querySelector("#verify"),message=document.querySelector("#message");
-    const setMessage=(text,isError=false)=>{message.textContent=text;message.dataset.state=isError?"error":"success";};
-    mobile?.addEventListener("input",()=>{mobile.value=mobile.value.replace(/\D/g,"").slice(0,10);});
-    send?.addEventListener("click",async()=>{
-      setMessage("");
-      if(!form.reportValidity())return;
-      if(!/^[6-9]\d{9}$/.test(mobile.value)){setMessage("Please enter a valid 10-digit Indian mobile number.",true);mobile.focus();return;}
-      send.disabled=true;send.textContent="Sending verification code…";
-      try{const r=await fetch("/api/auth/request-otp",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:email.value,name:name.value,mobile:mobile.value,purpose:"user",mode:"register"})});const d=await r.json();if(!r.ok)throw Error(d.error||"Unable to send code.");otpField.hidden=false;verify.hidden=false;send.hidden=true;otp.required=true;otp.focus();setMessage(d.message||"Verification code sent. Please check your email.");}
-      catch(e){setMessage(e.message||"Unable to send code.",true);send.disabled=false;send.innerHTML='Continue with email verification <span>→</span>';}
-    });
-    form?.addEventListener("submit",async e=>{e.preventDefault();setMessage("");if(!/^[6-9]\d{9}$/.test(mobile.value)){setMessage("Please enter a valid 10-digit Indian mobile number.",true);return;}verify.disabled=true;verify.textContent="Verifying…";
-      try{const r=await fetch("/api/auth/verify-otp",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:email.value,name:name.value,mobile:mobile.value,otp:otp.value,purpose:"user"})});const d=await r.json();if(!r.ok)throw Error(d.error||"Verification failed.");location.href=d.redirectTo||"/account";}
-      catch(e){setMessage(e.message||"Verification failed.",true);verify.disabled=false;verify.innerHTML='Verify & create account <span>→</span>';}
-    });
-  </script>
+</div></section>
+<script>
+  import { auth, registerWithEmail, loginWithGoogle, finishHelpMeDostSession } from "../scripts/firebase-client";
+  const form = document.querySelector("#register-form");
+  const message = document.querySelector("#message");
+  const submit = document.querySelector("#submit");
+  const mobile = document.querySelector("#mobile");
+  mobile?.addEventListener("input", () => { mobile.value = mobile.value.replace(/\\D/g, "").slice(0, 10); });
+  document.querySelector("#google")?.addEventListener("click", async () => {
+    try { message.textContent = "Opening Google sign-in…"; const user = await loginWithGoogle(); await finishHelpMeDostSession(user, { mode: "login" }); }
+    catch (error) { message.textContent = error.message || "Google sign-in failed."; }
+  });
+  form?.addEventListener("submit", async event => {
+    event.preventDefault(); message.textContent = "";
+    if (!form.reportValidity() || !/^[6-9]\\d{9}$/.test(mobile.value)) { message.textContent = "Please enter a valid 10-digit Indian mobile number."; return; }
+    submit.disabled = true; submit.textContent = "Creating account…";
+    try {
+      const user = await registerWithEmail(document.querySelector("#email").value, document.querySelector("#password").value, document.querySelector("#name").value);
+      sessionStorage.setItem("hmd_pending_profile", JSON.stringify({ name: document.querySelector("#name").value, mobile: mobile.value }));
+      message.textContent = "Account created. Verify your email from your inbox, then sign in to finish setup.";
+      await auth.signOut();
+      setTimeout(() => { location.href = "/login?registered=1"; }, 1800);
+    } catch (error) { message.textContent = error.message || "Registration failed."; submit.disabled = false; submit.textContent = "Create free account →"; }
+  });
+</script>
 </BaseLayout>
