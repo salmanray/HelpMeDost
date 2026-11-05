@@ -1,0 +1,16 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+<BaseLayout title="Admin sign in | HelpMeDost">
+<section class="page-hero"><div class="container"><span class="eyebrow">Staff access</span><h1>Admin sign in</h1><p>Authorised administrators can sign in securely using an email verification code.</p></div></section>
+<section class="container track-shell"><form class="form-shell" id="admin-form">
+<div class="field"><label for="email">Authorised admin email</label><input id="email" type="email" required autocomplete="email" placeholder="admin@example.com"/></div>
+<div class="field" id="otp-field" hidden><label for="otp">6-digit email code</label><input id="otp" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" autocomplete="one-time-code" placeholder="000000"/></div>
+<div class="form-actions"><button class="button" id="send" type="button">Send admin code →</button><button class="button" id="verify" type="submit" hidden>Verify and open dashboard →</button><span class="form-message" id="message" role="status"></span></div>
+</form></section>
+<script>
+const form=document.querySelector("#admin-form"),email=document.querySelector("#email"),otp=document.querySelector("#otp"),otpField=document.querySelector("#otp-field"),send=document.querySelector("#send"),verify=document.querySelector("#verify"),message=document.querySelector("#message");
+send?.addEventListener("click",async()=>{message.textContent="";try{const r=await fetch("/api/auth/request-otp",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:email.value,purpose:"admin"})});const d=await r.json();if(!r.ok)throw Error(d.error);otpField.hidden=false;verify.hidden=false;send.hidden=true;message.textContent=d.message;}catch(e){message.textContent=e.message||"Unable to send code.";}});
+form?.addEventListener("submit",async e=>{e.preventDefault();try{const r=await fetch("/api/auth/verify-otp",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:email.value,otp:otp.value,purpose:"admin"})});const d=await r.json();if(!r.ok)throw Error(d.error);location.href=d.redirectTo;}catch(e){message.textContent=e.message||"Verification failed."; }});
+</script>
+</BaseLayout>
