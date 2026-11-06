@@ -77,6 +77,30 @@ export const POST: APIRoute = async (context) => {
       return json({ok:true,processed:Number(x.updated)===1});
     }
 
+    if(eventType==="refund.processed") {
+      const refund=event.payload?.refund?.entity;
+      if(!refund?.id||!refund?.payment_id) return json({error:"Invalid refund event."},400);
+      const result=await sql`
+        WITH match AS (SELECT id FROM paid_query_orders WHERE razorpay_payment_id=${refund.payment_id} AND refund_status='requested' LIMIT 1),
+        claim AS (
+          INSERT INTO razorpay_webhook_events(event_id,event_type)
+          SELECT ${eventId},${eventType} WHERE EXISTS(SELECT 1 FROM match)
+          ON CONFLICT(event_id) DO NOTHING RETURNING event_id
+        ), done AS (
+          UPDATE paid_query_orders q SET razorpay_refund_id=${refund.id},refund_status='processed',
+            payment_status='refunded',status='refunded',updated_at=now()
+          FROM match,claim WHERE q.id=match.id RETURNING q.id
+        ) SELECT (SELECT count(*)::int FROM claim) AS claimed,(SELECT count(*)::int FROM done) AS updated
+      `;
+      const x=result[0];
+      if(!x?.claimed) {
+        const dup=await sql`SELECT 1 FROM razorpay_webhook_events WHERE event_id=${eventId} LIMIT 1`;
+        if(dup.length) return json({ok:true,duplicate:true});
+        return json({error:"No matching pending refund."},409);
+      }
+      return json({ok:true,processed:Number(x.updated)===1});
+    }
+
     // Persist a verified event once, so gateway retries do not cause repeated work.
     const saved=await sql`INSERT INTO razorpay_webhook_events(event_id,event_type) VALUES(${eventId},${eventType||"unknown"}) ON CONFLICT(event_id) DO NOTHING RETURNING event_id`;
     return json({ok:true,ignored:true,duplicate:saved.length===0});
