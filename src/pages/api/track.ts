@@ -2,7 +2,9 @@ import type { APIRoute } from "astro";
 import { getDb, json, cleanText } from "../../lib/db";
 
 const labels: Record<string, string> = {
-  submitted: "Received",
+  submitted: "Submitted / Open",
+  assigned: "Assigned",
+  in_progress: "Reply & Research",
   under_review: "Under review",
   waiting_for_user: "Waiting for your response",
   resolved: "Resolved",
@@ -28,7 +30,30 @@ export const POST: APIRoute = async (context) => {
       LIMIT 1`;
     if (!rows.length) return json({ error: "We could not find a request with those details. Please check and try again." }, 404);
     const item = rows[0];
-    return json({ referenceCode: item.reference_code, subject: item.subject, status: item.status, statusLabel: labels[item.status] || "In progress", updatedAt: item.updated_at });
+    const history = await sql`SELECT action, details, created_at
+      FROM audit_events
+      WHERE entity_type = 'service_request'
+        AND entity_id = (SELECT id FROM service_requests WHERE reference_code = ${reference} LIMIT 1)
+        AND action IN ('request_submitted', 'status_updated')
+      ORDER BY created_at ASC`;
+    const messages = await sql`SELECT sender_name, message, created_at
+      FROM request_messages
+      WHERE request_id = (SELECT id FROM service_requests WHERE reference_code = ${reference} LIMIT 1)
+        AND is_internal = false
+      ORDER BY created_at ASC LIMIT 50`;
+    return json({
+      referenceCode: item.reference_code,
+      subject: item.subject,
+      status: item.status,
+      statusLabel: labels[item.status] || "In progress",
+      updatedAt: item.updated_at,
+      history: history.map(event => ({
+        action: event.action,
+        status: event.details?.status || (event.action === "request_submitted" ? "submitted" : null),
+        createdAt: event.created_at
+      })),
+      messages
+    });
   } catch (error) {
     console.error("Request tracking failed", error);
     return json({ error: "Unable to check the request right now." }, 500);
