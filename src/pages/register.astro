@@ -22,7 +22,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   </section>
 </div></section>
 <script>
-  import { auth, registerWithEmail, loginWithGoogle, finishHelpMeDostSession } from "../scripts/firebase-client";
+  import { getFirebaseAuth, registerWithEmail, loginWithGoogle, finishHelpMeDostSession } from "../scripts/firebase-client";
   const form = document.querySelector("#register-form");
   const message = document.querySelector("#message");
   const submit = document.querySelector("#submit");
@@ -40,7 +40,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       const user = await registerWithEmail(document.querySelector("#email").value, document.querySelector("#password").value, document.querySelector("#name").value);
       sessionStorage.setItem("hmd_pending_profile", JSON.stringify({ name: document.querySelector("#name").value, mobile: mobile.value }));
       message.textContent = "Account created. Verify your email from your inbox, then sign in to finish setup.";
-      await auth.signOut();
+      await (await getFirebaseAuth()).signOut();
       setTimeout(() => { location.href = "/login?registered=1"; }, 1800);
     } catch (error) { message.textContent = error.message || "Registration failed."; submit.disabled = false; submit.textContent = "Create free account →"; }
   });
