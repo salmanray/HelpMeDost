@@ -3,6 +3,11 @@ import { getDb, json, cleanText } from "../../../lib/db";
 import { currentAuth } from "../../../lib/auth";
 import { razorpayConfig, razorpayRequest } from "../../../lib/razorpay";
 
+function safePaymentError(error: unknown) {
+  if (error instanceof Error && /^(Razorpay|Payment gateway)/i.test(error.message)) return error.message.slice(0, 300);
+  return "Unable to start payment. Please try again.";
+}
+
 export const POST: APIRoute = async (context) => {
   try {
     const user = await currentAuth(context);
@@ -44,6 +49,6 @@ export const POST: APIRoute = async (context) => {
     return json({ orderId: order.id, amount: order.amount, currency: order.currency, keyId });
   } catch (error) {
     console.error("Razorpay order creation failed", error);
-    return json({ error: "Unable to start payment. Please try again." }, 500);
+    return json({ error: safePaymentError(error) }, 500);
   }
 };
