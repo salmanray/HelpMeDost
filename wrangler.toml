@@ -4,3 +4,14 @@ pages_build_output_dir = "./dist"
 
 [vars]
 APP_NAME = "HelpMeDost"
+FIREBASE_PROJECT_ID = "helpmedost-auth-test"
+PUBLIC_FIREBASE_AUTH_DOMAIN = "helpmedost-auth-test.firebaseapp.com"
+PUBLIC_FIREBASE_PROJECT_ID = "helpmedost-auth-test"
+PUBLIC_FIREBASE_APP_ID = "1:547646128261:web:ab7f5e18eebe6269da69ec"
+
+[env.preview.vars]
+APP_NAME = "HelpMeDost"
+FIREBASE_PROJECT_ID = "helpmedost-auth-test"
+PUBLIC_FIREBASE_AUTH_DOMAIN = "helpmedost-auth-test.firebaseapp.com"
+PUBLIC_FIREBASE_PROJECT_ID = "helpmedost-auth-test"
+PUBLIC_FIREBASE_APP_ID = "1:547646128261:web:ab7f5e18eebe6269da69ec"
