@@ -2,151 +2,86 @@ import type { APIRoute } from "astro";
 import { getDb, json } from "../../../lib/db";
 import { hmacSha256Hex, safeEqual } from "../../../lib/razorpay";
 
-type CapturedPayment = {
-  id?: string;
-  order_id?: string;
-  amount?: number;
-  currency?: string;
-  status?: string;
-  captured?: boolean;
-};
-
 export const POST: APIRoute = async (context) => {
   try {
-    // Verify the exact raw bytes sent by Razorpay before parsing JSON.
-    const rawBody = await context.request.text();
-    const signature = context.request.headers.get("x-razorpay-signature") || "";
-    const eventId = context.request.headers.get("x-razorpay-event-id") || "";
-    const webhookSecret = context.locals.runtime?.env?.RAZORPAY_WEBHOOK_SECRET;
+    const rawBody=await context.request.text();
+    const signature=context.request.headers.get("x-razorpay-signature")||"";
+    const eventId=context.request.headers.get("x-razorpay-event-id")||"";
+    const secret=context.locals.runtime?.env?.RAZORPAY_WEBHOOK_SECRET;
+    if(!secret) return json({error:"Webhook secret is not configured."},503);
+    if(!eventId||!signature) return json({error:"Missing webhook headers."},400);
+    if(!safeEqual(await hmacSha256Hex(secret,rawBody),signature)) return json({error:"Invalid webhook signature."},400);
+    let event:any;
+    try { event=JSON.parse(rawBody); } catch { return json({error:"Invalid webhook payload."},400); }
+    const eventType=String(event?.event||"");
+    const sql=getDb(context);
 
-    if (!webhookSecret) return json({ error: "Webhook secret is not configured." }, 503);
-    if (!eventId || !signature) return json({ error: "Missing webhook headers." }, 400);
-
-    const expected = await hmacSha256Hex(webhookSecret, rawBody);
-    if (!safeEqual(expected, signature)) return json({ error: "Invalid webhook signature." }, 400);
-
-    let event: any;
-    try {
-      event = JSON.parse(rawBody);
-    } catch {
-      return json({ error: "Invalid webhook payload." }, 400);
+    if(eventType==="payment.captured") {
+      const p=event.payload?.payment?.entity;
+      if(!p?.id||!p?.order_id||p.status!=="captured"||p.captured!==true||!Number.isSafeInteger(p.amount)||p.amount<=0||p.currency!=="INR") return json({error:"Invalid captured-payment event."},400);
+      const result=await sql`
+        WITH match AS (
+          SELECT id FROM paid_query_orders WHERE razorpay_order_id=${p.order_id}
+            AND payment_status='pending' AND amount_inr*100=${p.amount} LIMIT 1
+        ), claim AS (
+          INSERT INTO razorpay_webhook_events(event_id,event_type)
+          SELECT ${eventId},${eventType} WHERE EXISTS(SELECT 1 FROM match)
+          ON CONFLICT(event_id) DO NOTHING RETURNING event_id
+        ), done AS (
+          UPDATE paid_query_orders q SET payment_status='paid',status='submitted',payment_provider='razorpay',
+            payment_reference=${p.id},razorpay_payment_id=${p.id},paid_at=COALESCE(q.paid_at,now()),updated_at=now()
+          FROM match,claim WHERE q.id=match.id RETURNING q.id
+        ) SELECT (SELECT count(*)::int FROM claim) AS claimed,(SELECT count(*)::int FROM done) AS updated
+      `;
+      const x=result[0];
+      if(!x?.claimed) {
+        const dup=await sql`SELECT 1 FROM razorpay_webhook_events WHERE event_id=${eventId} LIMIT 1`;
+        if(dup.length) return json({ok:true,duplicate:true});
+        return json({error:"No matching pending paid query."},409);
+      }
+      return json({ok:true,processed:Number(x.updated)===1});
     }
 
-    if (event.event !== "payment.captured") return json({ ok: true, ignored: true });
-
-    const payment = event.payload?.payment?.entity as CapturedPayment | undefined;
-    if (
-      !payment?.order_id ||
-      !payment.id ||
-      payment.status !== "captured" ||
-      payment.captured !== true ||
-      !Number.isSafeInteger(payment.amount) ||
-      payment.amount! <= 0 ||
-      payment.currency !== "INR"
-    ) {
-      return json({ error: "Invalid captured-payment event." }, 400);
+    const subscription=event.payload?.subscription?.entity;
+    const subscriptionId=subscription?.id;
+    const mapped:Record<string,string>={"subscription.activated":"active","subscription.charged":"active","subscription.cancelled":"cancelled","subscription.completed":"completed","subscription.halted":"halted"};
+    const nextStatus=mapped[eventType];
+    if(nextStatus && subscriptionId) {
+      const payment=event.payload?.payment?.entity;
+      const result=await sql`
+        WITH match AS (SELECT id FROM subscriptions WHERE razorpay_subscription_id=${subscriptionId} LIMIT 1),
+        claim AS (
+          INSERT INTO razorpay_webhook_events(event_id,event_type)
+          SELECT ${eventId},${eventType} WHERE EXISTS(SELECT 1 FROM match)
+          ON CONFLICT(event_id) DO NOTHING RETURNING event_id
+        ), done AS (
+          UPDATE subscriptions s SET status=${nextStatus},
+            payment_status=CASE WHEN ${eventType}='subscription.charged' THEN 'paid' ELSE s.payment_status END,
+            payment_provider='razorpay',
+            payment_reference=COALESCE(${payment?.id||null},s.payment_reference),
+            razorpay_payment_id=COALESCE(${payment?.id||null},s.razorpay_payment_id),
+            authorization_payment_id=CASE WHEN ${eventType}='subscription.activated' THEN COALESCE(${payment?.id||null},s.authorization_payment_id) ELSE s.authorization_payment_id END,
+            last_payment_id=CASE WHEN ${eventType}='subscription.charged' THEN COALESCE(${payment?.id||null},s.last_payment_id) ELSE s.last_payment_id END,
+            paid_at=CASE WHEN ${eventType}='subscription.charged' THEN now() ELSE s.paid_at END,
+            starts_at=CASE WHEN ${eventType}='subscription.activated' THEN COALESCE(s.starts_at,now()) ELSE s.starts_at END,
+            updated_at=now()
+          FROM match,claim WHERE s.id=match.id RETURNING s.id
+        ) SELECT (SELECT count(*)::int FROM claim) AS claimed,(SELECT count(*)::int FROM done) AS updated
+      `;
+      const x=result[0];
+      if(!x?.claimed) {
+        const dup=await sql`SELECT 1 FROM razorpay_webhook_events WHERE event_id=${eventId} LIMIT 1`;
+        if(dup.length) return json({ok:true,duplicate:true});
+        return json({error:"Subscription not found."},404);
+      }
+      return json({ok:true,processed:Number(x.updated)===1});
     }
 
-    const sql = getDb(context);
-
-    // One atomic statement: only claim the event when its order, amount and
-    // currency match a pending HelpMeDost payment. A failed statement rolls
-    // back both the event claim and the corresponding payment update.
-    const result = await sql`
-      WITH matching_subscription AS (
-        SELECT s.id
-        FROM subscriptions s
-        JOIN subscription_plans p ON p.id = s.plan_id
-        WHERE s.razorpay_order_id = ${payment.order_id}
-          AND s.payment_status = 'pending'
-          AND p.price_inr * 100 = ${payment.amount}
-        LIMIT 1
-      ),
-      matching_query AS (
-        SELECT q.id
-        FROM paid_query_orders q
-        WHERE q.razorpay_order_id = ${payment.order_id}
-          AND q.payment_status = 'pending'
-          AND q.amount_inr * 100 = ${payment.amount}
-        LIMIT 1
-      ),
-      event_claim AS (
-        INSERT INTO razorpay_webhook_events (event_id, event_type)
-        SELECT ${eventId}, 'payment.captured'
-        WHERE (SELECT count(*) FROM matching_subscription) + (SELECT count(*) FROM matching_query) = 1
-        ON CONFLICT (event_id) DO NOTHING
-        RETURNING event_id
-      ),
-      activate_subscription AS (
-        UPDATE subscriptions s
-        SET payment_status = 'paid',
-            status = 'active',
-            payment_provider = 'razorpay',
-            payment_reference = ${payment.id},
-            razorpay_payment_id = ${payment.id},
-            starts_at = COALESCE(s.starts_at, now()),
-            ends_at = COALESCE(
-              s.ends_at,
-              CASE p.billing_period
-                WHEN 'month' THEN now() + interval '1 month'
-                WHEN 'quarter' THEN now() + interval '3 months'
-                WHEN 'year' THEN now() + interval '1 year'
-                ELSE now()
-              END
-            ),
-            updated_at = now()
-        FROM subscription_plans p, event_claim ec
-        WHERE s.plan_id = p.id
-          AND s.razorpay_order_id = ${payment.order_id}
-          AND s.payment_status = 'pending'
-          AND p.price_inr * 100 = ${payment.amount}
-        RETURNING s.id
-      ),
-      activate_query AS (
-        UPDATE paid_query_orders q
-        SET payment_status = 'paid',
-            status = 'submitted',
-            payment_provider = 'razorpay',
-            payment_reference = ${payment.id},
-            razorpay_payment_id = ${payment.id},
-            updated_at = now()
-        FROM event_claim ec
-        WHERE q.razorpay_order_id = ${payment.order_id}
-          AND q.payment_status = 'pending'
-          AND q.amount_inr * 100 = ${payment.amount}
-        RETURNING q.id
-      )
-      SELECT
-        (SELECT count(*)::int FROM activate_subscription) AS subscriptions_activated,
-        (SELECT count(*)::int FROM activate_query) AS queries_activated,
-        (SELECT count(*)::int FROM event_claim) AS events_claimed
-    `;
-
-    const outcome = result[0] as {
-      subscriptions_activated: number;
-      queries_activated: number;
-      events_claimed: number;
-    } | undefined;
-
-    if (!outcome || outcome.events_claimed === 0) {
-      // Either the order/amount did not match, or Razorpay redelivered an
-      // event already processed. Do not mark an unmatched event as handled.
-      const duplicate = await sql`SELECT 1 FROM razorpay_webhook_events WHERE event_id = ${eventId} LIMIT 1`;
-      if (duplicate.length) return json({ ok: true, duplicate: true });
-      return json({ error: "No matching pending HelpMeDost order for this payment." }, 409);
-    }
-
-    if (outcome.subscriptions_activated + outcome.queries_activated !== 1) {
-      console.error("Razorpay webhook did not activate exactly one payment record", {
-        eventId,
-        orderId: payment.order_id
-      });
-      return json({ error: "Payment could not be matched to exactly one order." }, 409);
-    }
-
-    return json({ ok: true, processed: true });
-  } catch (error) {
-    console.error("Razorpay webhook processing failed", error);
-    return json({ error: "Webhook processing failed." }, 500);
+    // Persist a verified event once, so gateway retries do not cause repeated work.
+    const saved=await sql`INSERT INTO razorpay_webhook_events(event_id,event_type) VALUES(${eventId},${eventType||"unknown"}) ON CONFLICT(event_id) DO NOTHING RETURNING event_id`;
+    return json({ok:true,ignored:true,duplicate:saved.length===0});
+  } catch(error) {
+    console.error("Razorpay webhook processing failed",error);
+    return json({error:"Webhook processing failed."},500);
   }
 };
