@@ -31,10 +31,17 @@ export const POST: APIRoute = async (context) => {
     const { keyId, keySecret } = razorpayConfig(context);
     const expected = await hmacSha256Hex(keySecret, orderId + "|" + paymentId);
     if (!safeEqual(expected, signature)) return json({ error: "Payment signature verification failed." }, 400);
-    const payment = await razorpayRequest<{id:string;order_id:string;amount:number;currency:string;status:string}>("/payments/" + encodeURIComponent(paymentId), keyId, keySecret);
-    if (payment.id !== paymentId || payment.order_id !== orderId || payment.amount !== Number(record.amount_inr) * 100 || payment.currency !== "INR" || payment.status !== "captured") {
-      return json({ error: "Payment is not captured or does not match this order." }, 409);
+    let payment = await razorpayRequest<{id:string;order_id:string;amount:number;currency:string;status:string}>("/payments/" + encodeURIComponent(paymentId), keyId, keySecret);
+    if (payment.id !== paymentId || payment.order_id !== orderId || payment.amount !== Number(record.amount_inr) * 100 || payment.currency !== "INR") {
+      return json({ error: "Payment does not match this order." }, 409);
     }
+    if (payment.status === "authorized") {
+      payment = await razorpayRequest<{id:string;order_id:string;amount:number;currency:string;status:string}>(
+        "/payments/" + encodeURIComponent(paymentId) + "/capture", keyId, keySecret,
+        { amount: payment.amount, currency: payment.currency }
+      );
+    }
+    if (payment.status !== "captured") return json({ error: "Payment is not captured yet. Please check your account before trying again." }, 409);
 
     const updated = await sql`UPDATE paid_query_orders
       SET payment_status = 'paid', status = 'submitted', payment_provider = 'razorpay',
