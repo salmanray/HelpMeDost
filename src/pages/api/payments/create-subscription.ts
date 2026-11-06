@@ -6,7 +6,7 @@ import { razorpayConfig, razorpayRequest } from "../../../lib/razorpay";
 type Plan={id:string;code:string;name:string;price_inr:number;billing_period:string;query_credits:number;razorpay_plan_id:string|null};
 type RazorPlan={id:string};
 type RazorSubscription={id:string;plan_id:string;status:string;short_url?:string;total_count:number};
-const periods:Record<string,{period:"monthly"|"quarterly"|"yearly";count:number}>={month:{period:"monthly",count:120},quarter:{period:"quarterly",count:40},year:{period:"yearly",count:10}};
+const periods:Record<string,{period:"monthly"|"quarterly"|"yearly";count:number}>={month:{period:"monthly",count:1200},quarter:{period:"quarterly",count:400},year:{period:"yearly",count:100}};
 export const POST:APIRoute=async(context)=>{
   let createdSubscriptionId="";
   try {
