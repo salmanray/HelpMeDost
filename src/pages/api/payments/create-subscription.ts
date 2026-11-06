@@ -3,7 +3,7 @@ import { currentAuth } from "../../../lib/auth";
 import { cleanText, getDb, json } from "../../../lib/db";
 import { razorpayConfig, razorpayRequest } from "../../../lib/razorpay";
 
-type Plan={id:string;code:string;name:string;price_inr:number;billing_period:string;query_credits:number;razorpay_plan_id:string|null};
+function safePaymentError(error: unknown) {\n  if (error instanceof Error && /^(Razorpay|Payment gateway)/i.test(error.message)) return error.message.slice(0, 300);\n  return "Unable to start subscription. Please try again.";\n}\ntype Plan={id:string;code:string;name:string;price_inr:number;billing_period:string;query_credits:number;razorpay_plan_id:string|null};
 type RazorPlan={id:string};
 type RazorSubscription={id:string;plan_id:string;status:string;short_url?:string;total_count:number};
 const periods:Record<string,{period:"monthly"|"quarterly"|"yearly";count:number}>={month:{period:"monthly",count:1200},quarter:{period:"quarterly",count:400},year:{period:"yearly",count:100}};
@@ -46,6 +46,6 @@ export const POST:APIRoute=async(context)=>{
       } catch {}
     }
     console.error("Razorpay subscription creation failed",error);
-    return json({error:"Unable to start subscription. Please try again."},500);
+    return json({error:safePaymentError(error)},500);
   }
 };
