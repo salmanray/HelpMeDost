@@ -2,7 +2,7 @@ import type { APIRoute } from "astro";
 import { getDb, json, cleanText } from "../../../lib/db";
 import { currentAuth } from "../../../lib/auth";
 
-const allowedStatuses = ["submitted", "under_review", "waiting_for_user", "resolved", "closed"];
+const allowedStatuses = ["submitted", "under_review", "assigned", "in_progress", "waiting_for_user", "resolved", "closed", "rejected"];
 async function authorised(context: Parameters<APIRoute>[0]) {
   const user = await currentAuth(context);
   return Boolean(user && user.purpose === "admin" && user.user_type === "admin");

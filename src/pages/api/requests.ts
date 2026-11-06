@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { getDb, json, cleanText } from "../../lib/db";
+import { currentAuth } from "../../lib/auth";
 
 const categories: Record<string, string> = {
   "student-help": "School or student-related help",
@@ -42,9 +43,11 @@ export const POST: APIRoute = async (context) => {
     }
 
     const sql = getDb(context);
+    const user = await currentAuth(context);
+    const requesterId = user?.purpose === "user" && user.user_type === "public" ? user.id : null;
     const rows = await sql`INSERT INTO service_requests
-      (reference_code, category_id, requester_name, requester_email, requester_phone, subject, description, preferred_contact, priority, status, privacy_consent_at)
-      VALUES (${makeReference()}, (SELECT id FROM service_categories WHERE slug = ${category} AND is_active = true LIMIT 1), ${name}, ${email || null}, ${phone}, ${subject}, ${description}, ${preferredContact}, 'normal', 'submitted', now())
+      (reference_code, requester_id, category_id, requester_name, requester_email, requester_phone, subject, description, preferred_contact, priority, status, privacy_consent_at)
+      VALUES (${makeReference()}, ${requesterId}, (SELECT id FROM service_categories WHERE slug = ${category} AND is_active = true LIMIT 1), ${name}, ${email || user?.email || null}, ${phone}, ${subject}, ${description}, ${preferredContact}, 'normal', 'submitted', now())
       RETURNING id, reference_code`;
 
     try {
