@@ -29,7 +29,7 @@ export const POST:APIRoute=async(context)=>{
     try{
       const refund=await razorpayRequest<{id:string;status:string}>("/payments/"+encodeURIComponent(q.razorpay_payment_id)+"/refund",keyId,keySecret,{amount:Number(q.amount_inr)*100,notes:{helpmedost_reference:ref,reason:"No response within three working days"}});
       if(!refund.id)throw new Error("Missing refund ID");
-      await sql`UPDATE paid_query_orders SET refund_payment_id=${refund.id},refund_status=CASE WHEN ${refund.status}='processed' THEN 'processed' ELSE 'requested' END,payment_status=CASE WHEN ${refund.status}='processed' THEN 'refunded' ELSE payment_status END,status=CASE WHEN ${refund.status}='processed' THEN 'refunded' ELSE status END,updated_at=now() WHERE id=${q.id}`;
+      await sql`UPDATE paid_query_orders SET refund_payment_id=${q.razorpay_payment_id},razorpay_refund_id=${refund.id},refund_status=CASE WHEN ${refund.status}='processed' THEN 'processed' ELSE 'requested' END,payment_status=CASE WHEN ${refund.status}='processed' THEN 'refunded' ELSE payment_status END,status=CASE WHEN ${refund.status}='processed' THEN 'refunded' ELSE status END,updated_at=now() WHERE id=${q.id}`;
       return json({ok:true,status:refund.status,refundId:refund.id},202);
     }catch(error){
       console.error("Refund submitted or gateway response uncertain; requires reconciliation",error);
