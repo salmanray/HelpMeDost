@@ -1,0 +1,23 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+<BaseLayout title="Sign in | HelpMeDost">
+<section class="page-hero"><div class="container"><span class="eyebrow">Welcome back</span><h1>Sign in to HelpMeDost</h1><p>Secure sign-in with Google or your email and password.</p></div></section>
+<section class="container track-shell"><div class="form-shell">
+<button class="button" id="google" type="button">Continue with Google</button>
+<p style="text-align:center;margin:18px 0">— or sign in with email —</p>
+<form id="login-form">
+<div class="field"><label for="email">Email address</label><input id="email" type="email" required autocomplete="email" placeholder="you@example.com"/></div>
+<div class="field"><label for="password">Password</label><input id="password" type="password" required autocomplete="current-password" placeholder="Your password"/></div>
+<div class="form-actions"><button class="button" id="submit" type="submit">Sign in →</button><button class="button button-light" id="reset" type="button">Forgot password?</button></div>
+<p class="form-message" id="message" role="status" aria-live="polite"></p>
+<p class="hint">New to HelpMeDost? <a href="/register">Create a free account</a></p>
+</form></div></section>
+<script>
+import { loginWithEmail, loginWithGoogle, sendPasswordReset, finishHelpMeDostSession } from "../scripts/firebase-client";
+const message=document.querySelector("#message"),email=document.querySelector("#email"),password=document.querySelector("#password");
+document.querySelector("#google")?.addEventListener("click",async()=>{try{message.textContent="Opening Google sign-in…";const user=await loginWithGoogle();await finishHelpMeDostSession(user,{mode:"login"});}catch(error){message.textContent=error.message||"Google sign-in failed."; }});
+document.querySelector("#login-form")?.addEventListener("submit",async event=>{event.preventDefault();try{message.textContent="Signing in…";const user=await loginWithEmail(email.value,password.value);const pending=JSON.parse(sessionStorage.getItem("hmd_pending_profile")||"null");await finishHelpMeDostSession(user,pending?{...pending,mode:"register"}:{mode:"login"});sessionStorage.removeItem("hmd_pending_profile");}catch(error){message.textContent=error.message||"Sign-in failed."; }});
+document.querySelector("#reset")?.addEventListener("click",async()=>{try{if(!email.value)throw new Error("Enter your email address first.");await sendPasswordReset(email.value);message.textContent="Password reset email sent. Check your inbox."; }catch(error){message.textContent=error.message||"Could not send reset email."; }});
+</script>
+</BaseLayout>

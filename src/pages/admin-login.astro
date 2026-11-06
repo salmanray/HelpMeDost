@@ -1,0 +1,113 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+<BaseLayout title="Admin sign in | HelpMeDost">
+<section class="page-hero"><div class="container"><span class="eyebrow">Staff access</span><h1>Admin sign in</h1><p>Only authorised admin accounts can access the helpdesk.</p></div></section>
+<section class="container track-shell"><div class="form-shell">
+<button class="button" id="google" type="button">Continue with Google</button>
+<p style="text-align:center;margin:18px 0">— or use admin email and password —</p>
+<form id="admin-form">
+<div class="field"><label for="email">Authorised admin email</label><input id="email" type="email" required autocomplete="username" placeholder="admin@example.com"/></div>
+<div class="field"><label for="password">Password</label><input id="password" type="password" required autocomplete="current-password"/></div>
+<div class="form-actions"><button class="button" id="email-submit" type="submit">Sign in to dashboard →</button><button class="button button-light" id="reset" type="button">Forgot password?</button></div>
+</form>
+<div id="message" role="status" aria-live="polite" style="display:none;margin-top:18px;padding:14px;border:1px solid #d97706;border-radius:10px;background:#fffbeb;color:#78350f;overflow-wrap:anywhere">
+<strong id="message-title">Sign-in diagnostic</strong>
+<p id="message-text" style="margin:8px 0 0;white-space:pre-wrap"></p>
+<details id="technical-details" style="margin-top:10px"><summary>Technical details</summary><pre id="technical-text" style="white-space:pre-wrap;overflow-wrap:anywhere"></pre></details>
+</div>
+<p id="progress" role="status" aria-live="polite" style="margin-top:12px"></p>
+</div></section>
+<script>
+const message = document.querySelector("#message");
+const messageTitle = document.querySelector("#message-title");
+const messageText = document.querySelector("#message-text");
+const technicalText = document.querySelector("#technical-text");
+const technicalDetails = document.querySelector("#technical-details");
+const progress = document.querySelector("#progress");
+const googleButton = document.querySelector("#google");
+const emailButton = document.querySelector("#email-submit");
+const emailInput = document.querySelector("#email");
+const passwordInput = document.querySelector("#password");
+const resetButton = document.querySelector("#reset");
+
+function showDiagnostic(error, context = "Sign-in failed") {
+  const err = error instanceof Error ? error : new Error(String(error ?? "Unknown error"));
+  const code = typeof error === "object" && error && "code" in error ? String(error.code) : "";
+  message.style.display = "block";
+  messageTitle.textContent = context + (code ? " — " + code : "");
+  messageText.textContent = err.message || "No error message was provided.";
+  technicalText.textContent = [
+    "Name: " + (err.name || "Unknown"),
+    "Code: " + (code || "not provided"),
+    "Message: " + (err.message || "not provided"),
+    err.stack ? "Stack: " + err.stack : ""
+  ].filter(Boolean).join("\\n");
+  progress.textContent = "";
+  console.error("[HelpMeDost admin sign-in]", context, error);
+}
+function setBusy(busy, text = "") {
+  googleButton.disabled = busy;
+  emailButton.disabled = busy;
+  resetButton.disabled = busy;
+  progress.textContent = text;
+}
+async function getAuthHelpers() {
+  // Load Firebase only after a click, so a missing build-time config is shown in the page.
+  return await import("../scripts/firebase-client");
+}
+
+googleButton?.addEventListener("click", async () => {
+  message.style.display = "none";
+  setBusy(true, "Connecting to Google…");
+  try {
+    const auth = await getAuthHelpers();
+    const user = await auth.loginWithGoogle();
+    progress.textContent = "Google sign-in succeeded. Creating HelpMeDost session…";
+    await auth.finishHelpMeDostSession(user, { mode: "login", purpose: "admin" });
+  } catch (error) {
+    showDiagnostic(error, "Google sign-in failed");
+  } finally {
+    setBusy(false);
+  }
+});
+
+document.querySelector("#admin-form")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  message.style.display = "none";
+  setBusy(true, "Signing in with email…");
+  try {
+    const auth = await getAuthHelpers();
+    const user = await auth.loginWithEmail(emailInput.value, passwordInput.value);
+    progress.textContent = "Email sign-in succeeded. Creating HelpMeDost session…";
+    await auth.finishHelpMeDostSession(user, { mode: "login", purpose: "admin" });
+  } catch (error) {
+    showDiagnostic(error, "Email sign-in failed");
+  } finally {
+    setBusy(false);
+  }
+});
+
+resetButton?.addEventListener("click", async () => {
+  message.style.display = "none";
+  setBusy(true, "Sending password reset email…");
+  try {
+    if (!emailInput.value) throw new Error("Enter your admin email first.");
+    const auth = await getAuthHelpers();
+    await auth.sendPasswordReset(emailInput.value);
+    progress.textContent = "Password reset email sent. Check your inbox and spam folder.";
+  } catch (error) {
+    showDiagnostic(error, "Password reset failed");
+  } finally {
+    setBusy(false);
+  }
+});
+
+window.addEventListener("error", (event) => {
+  if (event.error) showDiagnostic(event.error, "Page script error");
+});
+window.addEventListener("unhandledrejection", (event) => {
+  showDiagnostic(event.reason, "Unexpected sign-in error");
+});
+</script>
+</BaseLayout>
