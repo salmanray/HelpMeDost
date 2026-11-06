@@ -1,0 +1,42 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+<BaseLayout title="Paid help | HelpMeDost" description="Request personalised HelpMeDost assistance with secure Razorpay checkout.">
+<section class="page-hero"><div class="container"><span class="eyebrow">Personalised assistance</span><h1>Get help with one specific question.</h1><p>Choose the service that fits your request. You will see the fixed price before checkout.</p></div></section>
+<section class="container" style="padding-bottom:72px">
+<form class="form-shell" id="paid-form">
+<div class="form-grid">
+<div class="field full"><label for="queryType">Service *</label><select id="queryType" name="queryType" required><option value="personal_guidance">Personalised guidance — ₹49</option><option value="detailed_assistance">Detailed assistance — ₹149</option><option value="document_review">Document/application review — ₹249</option></select></div>
+<div class="field"><label for="phone">Phone number *</label><input id="phone" name="phone" type="tel" autocomplete="tel" required maxlength="20" placeholder="Mobile number"></div>
+<div class="field full"><label for="subject">Short title *</label><input id="subject" name="subject" maxlength="180" required placeholder="What do you need help with?"></div>
+<div class="field full"><label for="description">Describe your question *</label><textarea id="description" name="description" maxlength="4000" required></textarea><span class="hint">Do not include passwords, OTPs, bank details or highly sensitive information.</span></div>
+<div class="field full"><label class="consent"><input type="checkbox" required><span>I agree to HelpMeDost using these details to respond to my request. If no reply is received within three working days after payment, I may request a full refund. *</span></label></div>
+</div>
+<div class="form-actions"><button class="button" type="submit" id="pay-button">Continue to secure payment →</button><span class="form-message" id="pay-message" role="status"></span></div>
+<div id="paid-result" class="result-card hidden" aria-live="polite"></div>
+<p class="hint">You must be signed in. Refund eligibility is based on three weekdays (excluding weekends) and no recorded response.</p>
+</form>
+</section>
+<script>
+const form=document.querySelector("#paid-form"),button=document.querySelector("#pay-button"),message=document.querySelector("#pay-message"),result=document.querySelector("#paid-result");
+async function post(url,data){const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});const d=await r.json();if(!r.ok)throw Error(d.error||"Request failed.");return d;}
+form?.addEventListener("submit",async e=>{
+ e.preventDefault();button.disabled=true;message.textContent="";result.classList.add("hidden");button.textContent="Preparing secure checkout…";
+ let ref="";
+ try{
+  const data=Object.fromEntries(new FormData(form).entries());
+  const created=await post("/api/payments/paid-query",data);ref=created.referenceCode;
+  const order=await post("/api/payments/create-order",{referenceCode:ref,orderType:"paid_query"});
+  await new Promise((resolve,reject)=>{if((window).Razorpay)return resolve();const script=document.createElement("script");script.src="https://checkout.razorpay.com/v1/checkout.js";script.onload=resolve;script.onerror=()=>reject(Error("Could not load secure payment window."));document.head.append(script);});
+  const RazorpayCtor=window.Razorpay;
+  const checkout=new RazorpayCtor({key:order.keyId,amount:order.amount,currency:order.currency,name:"HelpMeDost",description:"Paid assistance request",order_id:order.orderId,prefill:{contact:data.phone},notes:{reference_code:ref},theme:{color:"#3659e8"},handler:async response=>{
+    try{await post("/api/payments/verify",{...response,referenceCode:ref,orderType:"paid_query"});result.textContent="Payment confirmed. Your reference is "+ref+". You can check the response in your HelpMeDost account.";result.classList.remove("hidden");form.reset();}
+    catch(error){message.textContent=(error.message||"Payment verification is pending.")+" If money was deducted, do not pay again; contact support with reference "+ref+".";}
+    finally{button.disabled=false;button.textContent="Continue to secure payment →";}
+  },modal:{ondismiss:()=>{button.disabled=false;button.textContent="Continue to secure payment →";}}});
+  checkout.on("payment.failed",()=>{message.textContent="Payment did not complete. No request was submitted as paid.";button.disabled=false;button.textContent="Continue to secure payment →";});
+  checkout.open();
+ }catch(error){message.textContent=error.message||"Could not start checkout.";button.disabled=false;button.textContent="Continue to secure payment →";}
+});
+</script>
+</BaseLayout>
