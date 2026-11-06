@@ -5,8 +5,8 @@ const labels: Record<string, string> = {
   submitted: "Submitted / Open",
   assigned: "Assigned",
   in_progress: "Reply & Research",
-  under_review: "Under review",
-  waiting_for_user: "Waiting for your response",
+  under_review: "Reply & Research",
+  waiting_for_user: "Reply Delivered",
   resolved: "Resolved",
   closed: "Closed"
 };
