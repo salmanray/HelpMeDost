@@ -17,7 +17,7 @@ export const POST: APIRoute = async (context) => {
     if(!record.razorpay_subscription_id) return json({error:"This subscription is not linked to Razorpay."},409);
     if(["cancelled","completed","expired"].includes(record.status)) return json({ok:true,alreadyCancelled:true});
     const {keyId,keySecret}=razorpayConfig(context);
-    const cancelled=await razorpayRequest<{id:string;status:string}>("/subscriptions/"+encodeURIComponent(record.razorpay_subscription_id)+"/cancel",keyId,keySecret,{cancel_at_cycle_end:1});
+    const cancelled=await razorpayRequest<{id:string;status:string}>("/subscriptions/"+encodeURIComponent(record.razorpay_subscription_id)+"/cancel",keyId,keySecret,{cancel_at_cycle_end:record.status==='active'?1:0});
     if(cancelled.id!==record.razorpay_subscription_id) return json({error:"Unexpected cancellation response."},502);
     await sql`UPDATE subscriptions SET cancel_requested_at=COALESCE(cancel_requested_at,now()),updated_at=now() WHERE id=${record.id} AND user_profile_id=${user.id}`;
     return json({ok:true,status:cancelled.status,cancelAtCycleEnd:true});
