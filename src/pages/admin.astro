@@ -5,7 +5,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 <section class="page-hero"><div class="container"><span class="eyebrow">Helpdesk workspace</span><h1>Request dashboard</h1><p>Secure staff workspace. Sign in with your authorised admin email and password or Google account.</p></div></section>
 <section class="container" style="margin-bottom:80px">
 <div class="form-shell"><div id="admin-identity">Checking admin session…</div><div class="form-actions"><button class="button" id="load-requests">Load requests →</button><button class="button button-light" id="sign-out">Sign out</button><span class="form-message" id="admin-message" role="status"></span></div></div>
-<div id="request-list" class="admin-list"></div>
+<div class="form-shell"><a class="button button-light" href="/admin-paid-queries">Paid query responses →</a> <a class="button button-light" href="/admin-subscription-queries">Subscription query responses →</a></div><div id="request-list" class="admin-list"></div>
 </section>
 <script>
 import { logoutFirebase } from "../scripts/firebase-client";
