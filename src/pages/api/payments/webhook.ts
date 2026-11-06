@@ -56,7 +56,7 @@ export const POST: APIRoute = async (context) => {
           ON CONFLICT(event_id) DO NOTHING RETURNING event_id
         ), done AS (
           UPDATE subscriptions s SET status=${nextStatus},
-            payment_status=CASE WHEN ${eventType}='subscription.charged' THEN 'paid' ELSE s.payment_status END,
+            payment_status=CASE WHEN ${eventType}='subscription.charged' THEN 'paid' WHEN ${eventType}='subscription.halted' THEN 'failed' ELSE s.payment_status END,
             payment_provider='razorpay',
             payment_reference=COALESCE(${payment?.id||null},s.payment_reference),
             razorpay_payment_id=COALESCE(${payment?.id||null},s.razorpay_payment_id),
@@ -64,8 +64,10 @@ export const POST: APIRoute = async (context) => {
             last_payment_id=CASE WHEN ${eventType}='subscription.charged' THEN COALESCE(${payment?.id||null},s.last_payment_id) ELSE s.last_payment_id END,
             paid_at=CASE WHEN ${eventType}='subscription.charged' THEN now() ELSE s.paid_at END,
             starts_at=CASE WHEN ${eventType}='subscription.activated' THEN COALESCE(s.starts_at,now()) ELSE s.starts_at END,
+            query_credits_remaining=CASE WHEN ${eventType}='subscription.charged' THEN p.query_credits ELSE s.query_credits_remaining END,
+            ends_at=CASE WHEN ${eventType}='subscription.charged' THEN CASE p.billing_period WHEN 'month' THEN now()+interval '1 month' WHEN 'quarter' THEN now()+interval '3 months' WHEN 'year' THEN now()+interval '1 year' ELSE s.ends_at END ELSE s.ends_at END,
             updated_at=now()
-          FROM match,claim WHERE s.id=match.id RETURNING s.id
+          FROM match,claim,subscription_plans p WHERE s.id=match.id AND p.id=s.plan_id RETURNING s.id
         ) SELECT (SELECT count(*)::int FROM claim) AS claimed,(SELECT count(*)::int FROM done) AS updated
       `;
       const x=result[0];
