@@ -3,27 +3,45 @@ import {
   getAuth, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword,
   signInWithPopup, sendEmailVerification, sendPasswordResetEmail, updateProfile, signOut
 } from "firebase/auth";
+import type { Auth } from "firebase/auth";
 
-const config = {
-  apiKey: import.meta.env.PUBLIC_FIREBASE_API_KEY,
-  authDomain: import.meta.env.PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.PUBLIC_FIREBASE_PROJECT_ID,
-  appId: import.meta.env.PUBLIC_FIREBASE_APP_ID
+type FirebaseWebConfig = {
+  apiKey: string;
+  authDomain: string;
+  projectId: string;
+  appId: string;
 };
-if (!config.apiKey || !config.authDomain || !config.projectId || !config.appId) {
-  throw new Error("Firebase web configuration is missing. Please contact HelpMeDost support.");
+
+let authPromise: Promise<Auth> | undefined;
+
+export async function getFirebaseAuth(): Promise<Auth> {
+  if (!authPromise) {
+    authPromise = (async () => {
+      const response = await fetch("/api/auth/firebase-config", { cache: "no-store" });
+      const config = await response.json().catch(() => ({})) as Partial<FirebaseWebConfig> & { error?: string };
+      if (!response.ok) throw new Error(config.error || "Firebase web configuration is unavailable.");
+      if (!config.apiKey || !config.authDomain || !config.projectId || !config.appId) {
+        throw new Error("Firebase web configuration is incomplete. Please contact HelpMeDost support.");
+      }
+      const app = getApps()[0] || initializeApp(config as FirebaseWebConfig);
+      return getAuth(app);
+    })().catch(error => {
+      authPromise = undefined;
+      throw error;
+    });
+  }
+  return authPromise;
 }
-const app = getApps().length ? getApps()[0] : initializeApp(config);
-export const auth = getAuth(app);
-const googleProvider = new GoogleAuthProvider();
 
 export async function registerWithEmail(email: string, password: string, name: string) {
+  const auth = await getFirebaseAuth();
   const credential = await createUserWithEmailAndPassword(auth, email.trim(), password);
   await updateProfile(credential.user, { displayName: name.trim() });
   await sendEmailVerification(credential.user);
   return credential.user;
 }
 export async function loginWithEmail(email: string, password: string) {
+  const auth = await getFirebaseAuth();
   const credential = await signInWithEmailAndPassword(auth, email.trim(), password);
   if (!credential.user.emailVerified) {
     await sendEmailVerification(credential.user);
@@ -32,10 +50,12 @@ export async function loginWithEmail(email: string, password: string) {
   return credential.user;
 }
 export async function loginWithGoogle() {
-  const credential = await signInWithPopup(auth, googleProvider);
+  const auth = await getFirebaseAuth();
+  const credential = await signInWithPopup(auth, new GoogleAuthProvider());
   return credential.user;
 }
 export async function sendPasswordReset(email: string) {
+  const auth = await getFirebaseAuth();
   await sendPasswordResetEmail(auth, email.trim());
 }
 export async function finishHelpMeDostSession(user: { getIdToken: () => Promise<string> }, details: {
@@ -51,6 +71,7 @@ export async function finishHelpMeDostSession(user: { getIdToken: () => Promise<
   window.location.assign(data.redirectTo || "/account");
 }
 export async function logoutFirebase() {
+  const auth = await getFirebaseAuth();
   await signOut(auth);
   await fetch("/api/auth/logout", { method: "POST" });
 }
