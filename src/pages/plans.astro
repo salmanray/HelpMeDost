@@ -2,33 +2,23 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 <BaseLayout title="Plans & pricing | HelpMeDost" description="Choose free guidance, pay-per-query assistance or a HelpMeDost subscription.">
-  <section class="page-hero"><div class="container"><span class="eyebrow">Simple and transparent</span><h1>Help that fits your needs.</h1><p>Start free, pay only when you need individual assistance, or choose a subscription if you need help regularly. No forced upgrades.</p></div></section>
-  <section class="container" style="padding-bottom:72px">
-    <div class="service-grid pricing-grid">
-      <article class="service-card pricing-card">
-        <div class="service-icon">🌱</div><span class="eyebrow">Start here</span><h2>Free</h2><p class="price">₹0 <small>/ always</small></p>
-        <p>For people who need basic information and a first direction.</p>
-        <ul><li>Basic guidance and public information</li><li>Official links and useful resources</li><li>Submit a standard help request</li></ul>
-        <a class="button button-light" href="/request-help">Ask a free query →</a>
-      </article>
-      <article class="service-card pricing-card featured-plan">
-        <div class="plan-tag">Flexible option</div><div class="service-icon">💬</div><span class="eyebrow">One-time assistance</span><h2>Pay per query</h2><p class="price">₹49–299 <small>/ query</small></p>
-        <p>For people who need help with one specific issue without a subscription.</p>
-        <ul><li>Personalised guidance: ₹49</li><li>Detailed assistance: ₹99–199</li><li>Document/application review: ₹149–299</li></ul>
-        <a class="button" href="/request-help">Submit a query (free during pilot) →</a>
-      </article>
-      <article class="service-card pricing-card">
-        <div class="service-icon">⭐</div><span class="eyebrow">Regular support</span><h2>Premium</h2><p class="price">From ₹99 <small>/ month</small></p>
-        <p>For users who expect to need assistance more than once.</p>
-        <ul><li>Monthly: ₹99 — 5 eligible queries</li><li>Quarterly: ₹249 — 15 eligible queries</li><li>Annual: ₹799 — 60 eligible queries</li><li>Priority response, subject to service hours</li></ul>
-        <a class="button button-light" href="#subscription-note">Subscription details →</a>
-      </article>
-    </div>
-    <div class="form-shell pricing-note" id="subscription-note">
-      <h2>Payments are being prepared</h2>
-      <p>These are proposed launch prices. Online payment and subscription activation are not live yet. We will activate paid checkout only after secure payment verification, receipts, cancellation and refund handling are ready. Until then, no payment is collected through this page.</p>
-      <p class="hint">Basic public information remains free. Any paid service will show its scope, final price and delivery terms before you choose it.</p>
-      <a class="button" href="/request-help">Continue with a free query →</a>
-    </div>
-  </section>
+<section class="page-hero"><div class="container"><span class="eyebrow">Simple and transparent</span><h1>Help that fits your needs.</h1><p>Start free, pay once for one question, or choose recurring support. Subscription payments renew automatically until cancelled.</p></div></section>
+<section class="container" style="padding-bottom:72px">
+<div class="service-grid pricing-grid">
+<article class="service-card pricing-card"><div class="service-icon">🌱</div><span class="eyebrow">Start here</span><h2>Free</h2><p class="price">₹0 <small>/ always</small></p><p>For basic information and a first direction.</p><ul><li>Basic guidance and public information</li><li>Official links and useful resources</li><li>Submit a standard help request</li></ul><a class="button button-light" href="/request-help">Ask a free query →</a></article>
+<article class="service-card pricing-card featured-plan"><div class="plan-tag">Flexible option</div><div class="service-icon">💬</div><span class="eyebrow">One-time assistance</span><h2>Pay per query</h2><p class="price">₹49–299 <small>/ query</small></p><p>Get help with one specific issue without a subscription.</p><ul><li>Personalised guidance: ₹49</li><li>Detailed assistance: ₹149</li><li>Document/application review: ₹249</li></ul><a class="button" href="/paid-help">Submit a paid query →</a></article>
+<article class="service-card pricing-card"><div class="service-icon">⭐</div><span class="eyebrow">Auto-renewing support</span><h2>Premium</h2><p class="price">From ₹99 <small>/ month</small></p><ul><li>Monthly: ₹99 — 5 eligible queries</li><li>Quarterly: ₹249 — 15 eligible queries</li><li>Annual: ₹799 — 60 eligible queries</li><li>Recurring debit; cancel from your account</li></ul>
+<form id="subscribe-form"><label for="plan">Choose a subscription</label><select id="plan" name="plan"><option value="monthly">Monthly — ₹99</option><option value="quarterly">Quarterly — ₹249</option><option value="annual">Annual — ₹799</option></select><label for="sub-phone">Phone number for Razorpay *</label><input id="sub-phone" name="phone" type="tel" maxlength="20" required placeholder="Mobile number"><button class="button button-light" id="subscribe-button" type="submit">Continue to subscription →</button></form>
+</article></div>
+<div class="form-shell pricing-note"><h2>Before you pay</h2><p>Free public information remains available. Each paid service shows its scope and price before checkout. If a paid query receives no reply within three working days after payment, you can request a full refund from <a href="/my-account">My account</a>.</p><p class="hint">Subscriptions are recurring. Razorpay may ask you to approve a recurring payment mandate. Cancelling stops future renewal; the current paid period remains subject to the plan terms.</p><a href="/my-account">Manage your payments →</a></div></section>
+<script>
+const form=document.querySelector("#subscribe-form"),button=document.querySelector("#subscribe-button");
+async function post(url,data){const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)}),d=await r.json();if(!r.ok)throw Error(d.error||"Request failed.");return d;}
+form?.addEventListener("submit",async e=>{e.preventDefault();button.disabled=true;button.textContent="Preparing subscription…";try{
+ const planCode=document.querySelector("#plan").value,phone=document.querySelector("#sub-phone").value,created=await post("/api/payments/create-subscription",{planCode,phone});
+ if(!(window).Razorpay)await new Promise((resolve,reject)=>{const s=document.createElement("script");s.src="https://checkout.razorpay.com/v1/checkout.js";s.onload=resolve;s.onerror=()=>reject(Error("Could not load secure payment window."));document.head.append(s);});
+ const Checkout=(window).Razorpay,checkout=new Checkout({key:created.keyId,subscription_id:created.subscriptionId,name:"HelpMeDost",description:created.planName+" · "+created.queryCredits+" eligible queries",prefill:{contact:phone},notes:{reference_code:created.referenceCode},theme:{color:"#3659e8"},handler:async response=>{try{const v=await post("/api/payments/verify-subscription",{...response,referenceCode:created.referenceCode});alert(v.message+" Reference: "+created.referenceCode);location.href="/my-account";}catch(error){alert((error.message||"Verification is pending.")+" Do not start another subscription. Reference: "+created.referenceCode);location.href="/my-account";}finally{button.disabled=false;button.textContent="Continue to subscription →";}},modal:{ondismiss:()=>{button.disabled=false;button.textContent="Continue to subscription →";}}});
+ checkout.on("payment.failed",()=>{button.disabled=false;button.textContent="Continue to subscription →";alert("Subscription authorisation did not complete.");});checkout.open();
+}catch(error){alert(error.message||"Unable to start subscription.");button.disabled=false;button.textContent="Continue to subscription →";}});
+</script>
 </BaseLayout>
