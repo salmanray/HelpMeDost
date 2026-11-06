@@ -21,7 +21,7 @@ export const POST:APIRoute=async(context)=>{
     if(!q)return json({error:"Paid query not found."},404);
     if(q.payment_status!=="paid"||!q.razorpay_payment_id||!q.paid_at)return json({error:"This payment is not eligible for a refund request."},409);
     if(q.first_response_at)return json({error:"A response has already been recorded, so this no-reply refund policy does not apply."},409);
-    if(workingDaysBetween(new Date(q.paid_at),new Date())<3)return json({error:"You can request this refund after three working days without a reply."},409);
+    if(workingDaysBetween(new Date(q.paid_at),new Date())<=3)return json({error:"You can request this refund after three working days without a reply."},409);
     if(q.refund_status==="processed")return json({ok:true,alreadyProcessed:true});
     const claimed=await sql`UPDATE paid_query_orders SET refund_status='requested',refund_requested_at=COALESCE(refund_requested_at,now()),updated_at=now() WHERE id=${q.id} AND user_profile_id=${user.id} AND payment_status='paid' AND first_response_at IS NULL AND refund_status IN ('not_requested','rejected') RETURNING id`;
     if(!claimed.length)return json({error:"A refund request is already being processed."},409);
