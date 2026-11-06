@@ -16,6 +16,10 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     <a class="dashboard-action" href="#payment-history"><span class="dashboard-icon">₹</span><strong>Payment History</strong><small>View payments, refunds and subscriptions</small></a>
   </nav>
 
+  <section class="dashboard-section" id="my-requests">
+    <div class="dashboard-heading"><div><span class="eyebrow">Your assistance</span><h2>My Help Requests</h2><p>Free requests submitted while signed in, with their latest status.</p></div><a class="button" href="/request-help">Request Help →</a></div>
+    <div id="service-requests" class="dashboard-list" aria-live="polite">Loading your help requests…</div>
+  </section>
   <section class="dashboard-section" id="my-questions">
     <div class="dashboard-heading"><div><span class="eyebrow">Your activity</span><h2>My Questions</h2><p>Paid questions and questions submitted using subscription credits.</p></div><a class="button" href="/paid-help">Ask a Question →</a></div>
     <div id="queries" class="dashboard-list" aria-live="polite">Loading your questions…</div>
@@ -43,6 +47,7 @@ const identity = document.querySelector("#identity");
 const welcome = document.querySelector("#welcome-title");
 const queries = document.querySelector("#queries");
 const creditQueries = document.querySelector("#credit-queries");
+const serviceRequests = document.querySelector("#service-requests");
 const payments = document.querySelector("#payments");
 const subscriptions = document.querySelector("#subscriptions");
 function el(tag, value) { const node = document.createElement(tag); if (value !== undefined) node.textContent = value; return node; }
@@ -62,6 +67,26 @@ async function loadDashboard() {
     }
     welcome.textContent = "Welcome, " + (me.user.full_name || "there");
     identity.textContent = me.user.email;
+    const requestResponse = await fetch("/api/requests/mine", { cache: "no-store" });
+    const requestData = await requestResponse.json();
+    if (!requestResponse.ok) throw new Error(requestData.error || "Unable to load your help requests.");
+    const serviceItems = Array.isArray(requestData.requests) ? requestData.requests : [];
+    if (!serviceItems.length) empty(serviceRequests, "No free help requests found yet. You can submit a request using Request Help.");
+    else {
+      serviceRequests.replaceChildren();
+      serviceItems.forEach(q => {
+        const item = card(q.subject || "Help request", [
+          "Reference: " + q.reference_code,
+          "Status: " + q.status_label,
+          q.created_at ? "Submitted: " + new Date(q.created_at).toLocaleString() : ""
+        ]);
+        const track = el("a", "View request status →");
+        track.href = "/track";
+        track.className = "button button-light";
+        item.append(track);
+        serviceRequests.append(item);
+      });
+    }
     const response = await fetch("/api/payments/mine", { cache: "no-store" });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "Unable to load your account activity.");
@@ -125,6 +150,7 @@ async function loadDashboard() {
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unable to load your dashboard.";
     identity.textContent = message;
+    empty(serviceRequests, "Your help requests could not be loaded. Please refresh and try again.");
     empty(queries, "Your account activity could not be loaded. Please refresh and try again.");
     empty(payments, message);
     empty(subscriptions, message);
