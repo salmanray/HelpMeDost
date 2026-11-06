@@ -1,0 +1,18 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+<BaseLayout title="Use subscription query credit | HelpMeDost">
+<section class="page-hero"><div class="container"><span class="eyebrow">Premium assistance</span><h1>Use an eligible query credit.</h1><p>Choose an active subscription with available credits. One credit is used when your request is submitted.</p></div></section>
+<section class="container" style="padding-bottom:72px"><form id="credit-form" class="form-shell"><div class="form-grid">
+<div class="field full"><label for="subscription">Active subscription *</label><select id="subscription" required><option value="">Loading subscriptions…</option></select></div>
+<div class="field full"><label for="queryType">Service type *</label><select id="queryType"><option value="personal_guidance">Personalised guidance</option><option value="detailed_assistance">Detailed assistance</option><option value="document_review">Document/application review</option></select></div>
+<div class="field full"><label for="subject">Short title *</label><input id="subject" required maxlength="180"></div>
+<div class="field full"><label for="description">Describe your question *</label><textarea id="description" required maxlength="4000"></textarea></div>
+</div><div class="form-actions"><button class="button" id="send" type="submit">Submit using one credit →</button><span id="message" class="form-message" role="status"></span></div><div id="result" class="result-card hidden"></div></form></section>
+<script>
+const select=document.querySelector("#subscription"),form=document.querySelector("#credit-form"),message=document.querySelector("#message"),result=document.querySelector("#result"),button=document.querySelector("#send");
+async function init(){const me=await fetch("/api/auth/me"),u=await me.json();if(!me.ok||u.user?.purpose!=="user"){location.href="/login?next=%2Fsubscription-help";return;}const r=await fetch("/api/payments/mine"),d=await r.json();select.replaceChildren();const available=(d.subscriptions||[]).filter(s=>s.status==="active"&&s.payment_status==="paid"&&Number(s.query_credits_remaining)>0);if(!available.length){const o=document.createElement("option");o.textContent="No active subscription credits available";o.value="";select.append(o);button.disabled=true;return;}available.forEach(s=>{const o=document.createElement("option");o.value=s.reference_code;o.textContent=s.plan_name+" — "+s.query_credits_remaining+" credits left";select.append(o);});}
+form?.addEventListener("submit",async e=>{e.preventDefault();button.disabled=true;message.textContent="";try{const r=await fetch("/api/payments/subscription-query",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({subscriptionReference:select.value,queryType:document.querySelector("#queryType").value,subject:document.querySelector("#subject").value,description:document.querySelector("#description").value})}),d=await r.json();if(!r.ok)throw Error(d.error||"Could not submit query.");result.textContent="Your query is submitted. Reference: "+d.referenceCode+" · credits remaining: "+d.creditsRemaining;result.classList.remove("hidden");form.reset();await init();}catch(e){message.textContent=e.message||"Could not submit query.";}finally{button.disabled=false;}});
+init();
+</script>
+</BaseLayout>
