@@ -12,20 +12,91 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     </form>
   </section>
   <script>
-    const form = document.querySelector("#track-form"); const message = document.querySelector("#track-message"); const result = document.querySelector("#track-result"); const button = document.querySelector("#track-button");
+    const form = document.querySelector("#track-form");
+    const message = document.querySelector("#track-message");
+    const result = document.querySelector("#track-result");
+    const button = document.querySelector("#track-button");
+    const labels = {
+      submitted: "Submitted / Open",
+      under_review: "Reply & Research",
+      assigned: "Assigned",
+      in_progress: "Reply & Research",
+      waiting_for_user: "Reply Delivered",
+      resolved: "Resolved",
+      closed: "Closed",
+      rejected: "Closed"
+    };
+    function node(tag, text, className) {
+      const item = document.createElement(tag);
+      if (text) item.textContent = text;
+      if (className) item.className = className;
+      return item;
+    }
     form?.addEventListener("submit", async (event) => {
-      event.preventDefault(); message.textContent = ""; result.classList.add("hidden"); button.disabled = true; button.textContent = "Checking…";
+      event.preventDefault();
+      message.textContent = "";
+      result.replaceChildren();
+      result.classList.add("hidden");
+      button.disabled = true;
+      button.textContent = "Checking…";
       try {
-        const response = await fetch("/api/track", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ referenceCode: document.querySelector("#reference").value, phone: document.querySelector("#phone").value }) });
-        const body = await response.json(); if (!response.ok) throw new Error(body.error || "Request not found.");
-        result.innerHTML = "<span class='status-label'></span><h3 style='margin:16px 0 8px'></h3><p class='muted'></p><small class='hint'></small>";
-        result.querySelector(".status-label").textContent = body.statusLabel;
-        result.querySelector("h3").textContent = body.subject;
-        result.querySelector(".muted").textContent = "Reference: " + body.referenceCode;
-        result.querySelector("small").textContent = "Last updated: " + new Date(body.updatedAt).toLocaleString();
+        const response = await fetch("/api/track", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            referenceCode: document.querySelector("#reference").value,
+            phone: document.querySelector("#phone").value
+          })
+        });
+        const body = await response.json();
+        if (!response.ok) throw new Error(body.error || "Request not found.");
+
+        const status = node("span", body.statusLabel, "status-label");
+        result.append(status);
+        result.append(node("h3", body.subject));
+        result.append(node("p", "Reference: " + body.referenceCode, "muted"));
+        result.append(node("small", "Last updated: " + new Date(body.updatedAt).toLocaleString(), "hint"));
+
+        const historyTitle = node("h4", "Request progress");
+        historyTitle.style.margin = "22px 0 10px";
+        result.append(historyTitle);
+        const timeline = node("ol", "", "track-timeline");
+        const history = Array.isArray(body.history) ? body.history : [];
+        history.forEach(event => {
+          const statusName = labels[event.status] || (event.action === "request_submitted" ? "Submitted / Open" : "Status updated");
+          const entry = node("li");
+          entry.append(node("strong", statusName));
+          entry.append(node("small", new Date(event.createdAt).toLocaleString(), "hint"));
+          timeline.append(entry);
+        });
+        if (!history.length) timeline.append(node("li", "No status history is available yet."));
+        result.append(timeline);
+
+        const messages = Array.isArray(body.messages) ? body.messages : [];
+        if (messages.length) {
+          result.append(node("h4", "Replies", "track-messages-title"));
+          messages.forEach(reply => {
+            const box = node("article", "", "track-message");
+            box.append(node("strong", reply.sender_name || "HelpMeDost team"));
+            box.append(node("p", reply.message));
+            box.append(node("small", new Date(reply.created_at).toLocaleString(), "hint"));
+            result.append(box);
+          });
+        }
         result.classList.remove("hidden");
-      } catch (error) { message.textContent = error.message || "Unable to check status."; }
-      finally { button.disabled = false; button.textContent = "Check status →"; }
+      } catch (error) {
+        message.textContent = error.message || "Unable to check status.";
+      } finally {
+        button.disabled = false;
+        button.textContent = "Check status →";
+      }
     });
-  </script>
+  </script>t>
+<style>
+.track-timeline{list-style:none;padding:0;margin:0;display:grid;gap:12px}
+.track-timeline li{border-left:3px solid var(--brand,#2563eb);padding:2px 0 4px 14px;display:grid;gap:4px}
+.track-message{border:1px solid var(--line,#dbe3ec);border-radius:10px;padding:14px;margin-top:10px}
+.track-message p{white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0}
+.track-messages-title{margin:22px 0 8px}
+</style>
 </BaseLayout>
