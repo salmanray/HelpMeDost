@@ -18,7 +18,8 @@ export const POST: APIRoute = async (context) => {
 
     if(eventType==="payment.captured") {
       const p=event.payload?.payment?.entity;
-      if(p?.subscription_id&&!p?.order_id) return json({ok:true,ignored:true,reason:"subscription lifecycle is handled by subscription webhooks"});\n      if(!p?.id||!p?.order_id||p.status!=="captured"||p.captured!==true||!Number.isSafeInteger(p.amount)||p.amount<=0||p.currency!=="INR") return json({error:"Invalid captured-payment event."},400);
+      if(p?.subscription_id&&!p?.order_id) return json({ok:true,ignored:true,reason:"subscription lifecycle is handled by subscription webhooks"});
+      if(!p?.id||!p?.order_id||p.status!=="captured"||p.captured!==true||!Number.isSafeInteger(p.amount)||p.amount<=0||p.currency!=="INR") return json({error:"Invalid captured-payment event."},400);
       const result=await sql`
         WITH match AS (
           SELECT id FROM paid_query_orders WHERE razorpay_order_id=${p.order_id}
