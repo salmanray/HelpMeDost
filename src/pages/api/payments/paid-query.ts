@@ -22,7 +22,7 @@ export const POST: APIRoute = async (context) => {
     }
     const body = await context.request.json();
     const queryType = cleanText(body.queryType, 40) as keyof typeof prices;
-    const phone = cleanText(body.phone, 20).replace(/\\D/g, "");
+    const phone = cleanText(body.phone, 20).replace(/\D/g, "");
     const subject = cleanText(body.subject, 180);
     const description = cleanText(body.description, 4000);
     if (!(queryType in prices) || !subject || !description || phone.length < 10 || phone.length > 15) {
