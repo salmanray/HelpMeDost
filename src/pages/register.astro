@@ -27,14 +27,14 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   const message = document.querySelector("#message");
   const submit = document.querySelector("#submit");
   const mobile = document.querySelector("#mobile");
-  mobile?.addEventListener("input", () => { mobile.value = mobile.value.replace(/\\D/g, "").slice(0, 10); });
+  mobile?.addEventListener("input", () => { mobile.value = mobile.value.replace(/\D/g, "").slice(0, 10); });
   document.querySelector("#google")?.addEventListener("click", async () => {
     try { message.textContent = "Opening Google sign-in…"; const user = await loginWithGoogle(); await finishHelpMeDostSession(user, { mode: "login" }); }
     catch (error) { message.textContent = error.message || "Google sign-in failed."; }
   });
   form?.addEventListener("submit", async event => {
     event.preventDefault(); message.textContent = "";
-    if (!form.reportValidity() || !/^[6-9]\\d{9}$/.test(mobile.value)) { message.textContent = "Please enter a valid 10-digit Indian mobile number."; return; }
+    if (!form.reportValidity() || !/^[6-9]\d{9}$/.test(mobile.value)) { message.textContent = "Please enter a valid 10-digit Indian mobile number."; return; }
     submit.disabled = true; submit.textContent = "Creating account…";
     try {
       const user = await registerWithEmail(document.querySelector("#email").value, document.querySelector("#password").value, document.querySelector("#name").value);
