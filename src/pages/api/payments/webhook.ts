@@ -49,8 +49,33 @@ export const POST: APIRoute = async (context) => {
     const nextStatus=mapped[eventType];
     if(nextStatus && subscriptionId) {
       const payment=event.payload?.payment?.entity;
+      // A charged subscription must carry a captured INR payment for the exact
+      // amount configured for its mapped plan. Never grant credits on a
+      // subscription event alone or on a mismatched payment.
+      if(eventType==="subscription.charged" && (
+        !payment?.id ||
+        payment.subscription_id!==subscriptionId ||
+        payment.status!=="captured" ||
+        payment.captured!==true ||
+        !Number.isSafeInteger(payment.amount) ||
+        payment.amount<=0 ||
+        payment.currency!=="INR"
+      )) return json({error:"Invalid subscription charge event."},400);
       const result=await sql`
-        WITH match AS (SELECT id FROM subscriptions WHERE razorpay_subscription_id=${subscriptionId} LIMIT 1),
+        WITH match AS (
+          SELECT s.id FROM subscriptions s
+          JOIN subscription_plans p ON p.id=s.plan_id
+          WHERE s.razorpay_subscription_id=${subscriptionId}
+            AND (
+              ${eventType}<>'subscription.charged'
+              OR (
+                p.price_inr*100=${payment?.amount||0}
+                AND p.billing_period IN ('month','quarter','year')
+                AND ${payment?.currency||"''"}='INR'
+              )
+            )
+          LIMIT 1
+        ),
         claim AS (
           INSERT INTO razorpay_webhook_events(event_id,event_type)
           SELECT ${eventId},${eventType} WHERE EXISTS(SELECT 1 FROM match)
