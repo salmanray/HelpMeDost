@@ -15,19 +15,48 @@ export function safeEqual(a: string, b: string) {
 
 export function razorpayConfig(context: { locals: { runtime?: { env?: Record<string, string | undefined> } } }) {
   const env = context.locals.runtime?.env;
-  const keyId = env?.RAZORPAY_KEY_ID;
-  const keySecret = env?.RAZORPAY_KEY_SECRET;
+  // Cloudflare dashboard copy/paste can leave surrounding whitespace in secrets.
+  const keyId = env?.RAZORPAY_KEY_ID?.trim();
+  const keySecret = env?.RAZORPAY_KEY_SECRET?.trim();
   if (!keyId || !keySecret) throw new Error("Razorpay credentials are not configured.");
-  return { keyId, keySecret, webhookSecret: env?.RAZORPAY_WEBHOOK_SECRET };
+  return { keyId, keySecret, webhookSecret: env?.RAZORPAY_WEBHOOK_SECRET?.trim() };
 }
 
 export async function razorpayRequest<T>(path: string, keyId: string, keySecret: string, body?: unknown): Promise<T> {
-  const response = await fetch("https://api.razorpay.com/v1" + path, {
-    method: body ? "POST" : "GET",
-    headers: { Authorization: "Basic " + btoa(keyId + ":" + keySecret), ...(body ? { "Content-Type": "application/json" } : {}) },
-    ...(body ? { body: JSON.stringify(body) } : {})
-  });
-  const data = await response.json();
-  if (!response.ok) throw new Error("Razorpay API request failed.");
+  let response: Response;
+  try {
+    response = await fetch("https://api.razorpay.com/v1" + path, {
+      method: body ? "POST" : "GET",
+      headers: { Authorization: "Basic " + btoa(keyId.trim() + ":" + keySecret.trim()), ...(body ? { "Content-Type": "application/json" } : {}) },
+      ...(body ? { body: JSON.stringify(body) } : {})
+    });
+  } catch (error) {
+    console.error("Razorpay network request failed", { path, error: error instanceof Error ? error.message : "Unknown network error" });
+    throw new Error("Razorpay could not be reached. Check the payment gateway connection.");
+  }
+
+  let data: any;
+  try {
+    data = await response.json();
+  } catch {
+    data = null;
+  }
+
+  if (!response.ok) {
+    // Keep gateway diagnostics in server logs only; never return credentials or raw payloads to the browser.
+    const gatewayCode = typeof data?.error?.code === "string" ? data.error.code : "UNKNOWN";
+    const gatewayDescription = typeof data?.error?.description === "string"
+      ? data.error.description.slice(0, 240)
+      : "No error description returned";
+    console.error("Razorpay API rejected request", {
+      path,
+      httpStatus: response.status,
+      gatewayCode,
+      gatewayDescription
+    });
+    throw new Error(`Razorpay rejected the request (HTTP ${response.status}, ${gatewayCode}): ${gatewayDescription}`);
+  }
+
+  if (!data || typeof data !== "object") throw new Error("Razorpay returned an invalid response.");
   return data as T;
 }
