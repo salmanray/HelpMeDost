@@ -44,7 +44,7 @@ export const POST: APIRoute = async (context) => {
 
     const subscription=event.payload?.subscription?.entity;
     const subscriptionId=subscription?.id;
-    const mapped:Record<string,string>={"subscription.activated":"active","subscription.charged":"active","subscription.cancelled":"cancelled","subscription.completed":"completed","subscription.halted":"halted"};
+    const mapped:Record<string,string>={"subscription.activated":"active","subscription.charged":"active","subscription.cancelled":"cancelled","subscription.completed":"expired","subscription.halted":"payment_failed"};
     const nextStatus=mapped[eventType];
     if(nextStatus && subscriptionId) {
       const payment=event.payload?.payment?.entity;
