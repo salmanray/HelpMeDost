@@ -96,7 +96,10 @@ startButton?.addEventListener("click", async () => {
   try {
     const response = await fetch("/api/chat/session", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ category: categorySelect.value }) });
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.error || "Could not start your chat.");
+    if (!response.ok) {
+      const diagnostic = [data.diagnostic, data.detail].filter(Boolean).join(": ");
+      throw new Error([data.error || "Could not start your chat.", diagnostic].filter(Boolean).join(" — "));
+    }
     session = data.session as Record<string, any>; const createdSession = session; categorySelect.value = createdSession.category.slug; categorySelect.disabled = true;
     startPanel.classList.add("hidden"); form.classList.remove("hidden"); notice.textContent = ""; startCountdown(data.remainingSeconds);
     if (!data.isNew) {
