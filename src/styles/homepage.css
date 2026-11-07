@@ -461,3 +461,163 @@
     aspect-ratio: 715 / 302 !important;
   }
 }
+
+
+/* Unified hero composition: family image as the background, copy layered above it */
+.hm-reference-inner {
+  position: relative !important;
+  display: block !important;
+  width: min(1440px, calc(100% - clamp(28px, 4vw, 80px))) !important;
+  max-width: none !important;
+  min-height: clamp(340px, 29vw, 430px) !important;
+  margin: 0 auto !important;
+  overflow: hidden !important;
+  isolation: isolate;
+  background: linear-gradient(110deg, #f8fbff 0%, #f1f9f4 100%);
+}
+.hm-reference-copy {
+  position: relative !important;
+  z-index: 3 !important;
+  width: min(58%, 740px) !important;
+  padding: clamp(32px, 4vw, 58px) 0 34px clamp(18px, 3vw, 48px) !important;
+}
+.hm-reference-copy h1 { max-width: 720px; }
+.hm-reference-copy p { max-width: 650px; }
+.hm-reference-family {
+  position: absolute !important;
+  z-index: 1 !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: auto !important;
+  width: 72% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  pointer-events: none;
+}
+.hm-family-photo-wrap {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  clip-path: none !important;
+  overflow: hidden !important;
+}
+.hm-family-photo-wrap img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  object-position: right center !important;
+}
+.hm-family-photo-wrap:after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: linear-gradient(
+    90deg,
+    #f8fbff 0%,
+    rgba(248, 251, 255, .94) 17%,
+    rgba(248, 251, 255, .76) 32%,
+    rgba(248, 251, 255, .30) 48%,
+    rgba(248, 251, 255, .04) 64%,
+    rgba(248, 251, 255, 0) 74%
+  ) !important;
+}
+.hm-family-service-pills,
+.hm-family-swoosh { display: none !important; }
+
+@media (max-width: 1100px) {
+  .hm-reference-inner {
+    width: calc(100% - 28px) !important;
+    min-height: 390px !important;
+  }
+  .hm-reference-copy {
+    width: 86% !important;
+    padding: 25px 12px 26px 18px !important;
+  }
+  .hm-reference-copy h1 {
+    max-width: 610px !important;
+    font-size: clamp(34px, 5.2vw, 48px) !important;
+    line-height: 1.06 !important;
+    letter-spacing: -1.5px !important;
+  }
+  .hm-reference-copy p {
+    max-width: 520px !important;
+    font-size: clamp(15px, 1.8vw, 18px) !important;
+    line-height: 1.45 !important;
+  }
+  .hm-reference-family {
+    top: 0 !important;
+    right: -5% !important;
+    bottom: 0 !important;
+    left: auto !important;
+    width: 82% !important;
+    height: 100% !important;
+  }
+  .hm-family-photo-wrap img {
+    object-fit: contain !important;
+    object-position: right bottom !important;
+  }
+  .hm-family-photo-wrap:after {
+    background: linear-gradient(
+      90deg,
+      #f8fbff 0%,
+      rgba(248, 251, 255, .96) 25%,
+      rgba(248, 251, 255, .78) 43%,
+      rgba(248, 251, 255, .28) 61%,
+      rgba(248, 251, 255, 0) 78%
+    ) !important;
+  }
+}
+@media (max-width: 700px) {
+  .hm-reference-inner {
+    width: 100% !important;
+    min-height: 410px !important;
+  }
+  .hm-reference-copy {
+    width: 91% !important;
+    padding: 22px 10px 24px 16px !important;
+  }
+  .hm-reference-copy h1 {
+    max-width: 370px !important;
+    font-size: clamp(30px, 7.7vw, 36px) !important;
+    line-height: 1.05 !important;
+    letter-spacing: -1.2px !important;
+  }
+  .hm-reference-copy p {
+    max-width: 330px !important;
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+  }
+  .hm-reference-actions { gap: 9px !important; }
+  .hm-reference-actions a {
+    min-height: 42px !important;
+    padding: 0 13px !important;
+    font-size: 13px !important;
+  }
+  .hm-reference-family {
+    top: 0 !important;
+    right: -10% !important;
+    bottom: 0 !important;
+    left: auto !important;
+    width: 120% !important;
+    height: 100% !important;
+  }
+  .hm-family-photo-wrap img {
+    object-fit: contain !important;
+    object-position: right bottom !important;
+  }
+  .hm-family-photo-wrap:after {
+    background: linear-gradient(
+      90deg,
+      #f8fbff 0%,
+      rgba(248, 251, 255, .96) 31%,
+      rgba(248, 251, 255, .82) 47%,
+      rgba(248, 251, 255, .42) 62%,
+      rgba(248, 251, 255, .06) 80%,
+      rgba(248, 251, 255, 0) 100%
+    ) !important;
+  }
+}
