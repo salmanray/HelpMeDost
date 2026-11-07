@@ -2,92 +2,67 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import "../styles/homepage.css";
 ---
-<BaseLayout
-  title="HelpMeDost | Support, Guidance and Solutions"
-  description="A people-first assistance portal for students, parents and families. Explore student support, Dost AI and practical guidance through HelpMeDost."
->
-  <section class="hm-hero hm-hero-final">
-    <div class="hm-container hm-hero-grid">
-      <div class="hm-hero-copy">
-        <div class="hm-kicker"><span class="hm-kicker-dot"></span> A one-stop helpdesk</div>
-        <h1>Support, Guidance and Solutions for <span class="hm-word-students">Students</span>, <span class="hm-word-parents">Parents</span> and <span class="hm-word-families">Families</span></h1>
-        <p class="hm-lead">Education, complaints, counselling, legal help, cyber safety and government services — aapko sahi direction aur practical next steps dene ki ek simple shuruaat.</p>
-        <div class="hm-actions">
-          <a class="hm-btn hm-btn-primary" href="/request-help">Get Help Now <span aria-hidden="true">→</span></a>
-          <a class="hm-btn hm-btn-quiet" href="/dost">Ask Dost AI <span aria-hidden="true">✦</span></a>
+<BaseLayout title="HelpMeDost | Student, Parent & Citizen Assistance Portal" description="A one-stop helpdesk for students, parents and citizens — education, complaints, counselling, legal guidance and cyber safety.">
+  <section class="hm-reference-hero">
+    <div class="hm-reference-inner">
+      <div class="hm-reference-copy">
+        <span class="hm-reference-pill">A One-Stop Helpdesk</span>
+        <h1>Support, Guidance and Solutions for <span class="word-blue">Students</span>, <span class="word-green">Parents</span> and <span class="word-orange">Families</span></h1>
+        <p>Education, Complaints, Counselling, Legal Help, Cyber Safety and Government Services – All in One Place.</p>
+        <div class="hm-reference-actions"><a class="hm-reference-primary" href="/request-help">Get Help Now <b>→</b></a><a class="hm-reference-secondary" href="/dost">Ask Dost AI <b>🤖</b></a></div>
+      </div>
+      <div class="hm-reference-family">
+        <div class="hm-family-photo-wrap"><img src="https://images.pexels.com/photos/4260753/pexels-photo-4260753.jpeg?auto=compress&cs=tinysrgb&w=1100" alt="A father and children smiling together while using a laptop" loading="eager" /></div>
+        <div class="hm-family-swoosh"></div>
+        <div class="hm-family-service-pills">
+          <a href="/request-help"><span class="service-symbol green">🎓</span>Student Help</a>
+          <a href="/request-help"><span class="service-symbol green">👥</span>Counselling &amp; Wellbeing</a>
+          <a href="/request-help"><span class="service-symbol orange">⚖</span>Legal Guidance</a>
+          <a href="/request-help"><span class="service-symbol green">▣</span>Cyber Safety</a>
+          <a href="/request-help"><span class="service-symbol blue">🏛</span>Government Work</a>
         </div>
-        <div class="hm-reassurance"><span>Simple process</span><span>People-first support</span><span>Clear next steps</span></div>
-      </div>
-      <div class="hm-family-scene" role="img" aria-label="Illustration of a family using HelpMeDost together">
-        <div class="hm-family-blob"></div>
-        <div class="hm-family-spark hm-spark-one">✦</div><div class="hm-family-spark hm-spark-two">✳</div>
-        <div class="hm-family-person hm-person-parent"><span>👨🏻</span></div>
-        <div class="hm-family-person hm-person-child"><span>👧🏻</span></div>
-        <div class="hm-family-person hm-person-mother"><span>👩🏻</span></div>
-        <div class="hm-family-laptop"><div class="hm-laptop-brand">h</div><strong>HelpMe<span>Dost</span></strong><small>Support starts here</small><div class="hm-laptop-base"></div></div>
-        <div class="hm-family-chip hm-chip-student"><span>🎓</span> Student Help</div>
-        <div class="hm-family-chip hm-chip-counsel"><span>🫶</span> Counselling</div>
-        <div class="hm-family-chip hm-chip-legal"><span>⚖️</span> Legal Guidance</div>
-        <div class="hm-family-chip hm-chip-cyber"><span>💻</span> Cyber Safety</div>
-        <div class="hm-family-chip hm-chip-govt"><span>🏛️</span> Government Help</div>
       </div>
     </div>
   </section>
 
-  <section class="hm-section hm-key-services" id="services">
-    <div class="hm-container">
-      <div class="hm-key-heading"><div><div class="hm-kicker">Explore HelpMeDost</div><h2>Our Key Services</h2></div><a href="/request-help" class="hm-view-all">Get Help <span aria-hidden="true">→</span></a></div>
-      <div class="hm-service-grid hm-service-grid-eight">
-        <a class="hm-service hm-service-featured" href="/request-help"><div class="hm-service-icon hm-icon-blue">🎓</div><h3>Student Support</h3><p>Admission, EWS and education guidance.</p><span class="hm-service-link">Get student help <b>→</b></span></a>
-        <a class="hm-service" href="/request-help"><div class="hm-service-icon hm-icon-peach">▤</div><h3>Complaint &amp; Grievance</h3><p>Share your concern and seek guidance.</p><span class="hm-coming">Explore assistance</span></a>
-        <article class="hm-service"><div class="hm-service-icon hm-icon-mint">♡</div><h3>Counselling</h3><p>Student and parent support information.</p><span class="hm-coming">Planned service</span></article>
-        <article class="hm-service"><div class="hm-service-icon hm-icon-blue">⚖</div><h3>Legal Assistance</h3><p>Understand options and find the right direction.</p><span class="hm-coming">Planned service</span></article>
-        <article class="hm-service"><div class="hm-service-icon hm-icon-lilac">⌘</div><h3>Cyber Help</h3><p>Digital safety and cyber awareness guidance.</p><span class="hm-coming">Planned service</span></article>
-        <article class="hm-service"><div class="hm-service-icon hm-icon-blue">▣</div><h3>Government Jobs</h3><p>Updates and application guidance.</p><span class="hm-coming">Planned service</span></article>
-        <article class="hm-service"><div class="hm-service-icon hm-icon-peach">✚</div><h3>Mental Wellbeing</h3><p>Find information and support resources.</p><span class="hm-coming">Planned service</span></article>
-        <article class="hm-service"><div class="hm-service-icon hm-icon-mint">🤝</div><h3>Expert Connect</h3><p>Connect with relevant support professionals.</p><span class="hm-coming">Planned service</span></article>
-      </div>
-      <p class="hm-services-note"><span>✦</span> HelpMeDost is being developed in phases. Services marked as planned are not yet available for booking.</p>
+  <section class="hm-reference-services" id="services">
+    <div class="hm-reference-section-head"><h2>Our Key Services</h2><a href="/request-help">View All Services <b>→</b></a></div>
+    <div class="hm-reference-service-grid">
+      <a href="/request-help" class="hm-ref-service"><span class="hm-ref-icon blue">🎓</span><strong>Student Support</strong><small>(Admission, EWS, etc.)</small></a>
+      <a href="/request-help" class="hm-ref-service"><span class="hm-ref-icon orange">▤</span><strong>Complaint &amp;<br/>Grievance</strong></a>
+      <a href="/request-help" class="hm-ref-service"><span class="hm-ref-icon green">👥</span><strong>Counselling</strong><small>(Student &amp; Parent)</small></a>
+      <a href="/request-help" class="hm-ref-service"><span class="hm-ref-icon blue">⚖</span><strong>Legal Assistance</strong><small>(Guidance &amp; Support)</small></a>
+      <a href="/request-help" class="hm-ref-service"><span class="hm-ref-icon blue">▣</span><strong>Cyber Help</strong><small>(Safety &amp; Awareness)</small></a>
+      <a href="/request-help" class="hm-ref-service"><span class="hm-ref-icon blue">▰</span><strong>Government Jobs</strong><small>(Alerts &amp; Guidance)</small></a>
+      <a href="/request-help" class="hm-ref-service"><span class="hm-ref-icon red">♥</span><strong>Mental Wellbeing</strong><small>(Stress, Exam, Life)</small></a>
+      <a href="/request-help" class="hm-ref-service"><span class="hm-ref-icon orange">🤝</span><strong>Expert Connect</strong><small>(Advocate, Counsellor, etc.)</small></a>
     </div>
   </section>
 
-  <section class="hm-feature-row" id="how-it-works">
-    <div class="hm-container hm-feature-grid">
-      <article class="hm-dost-panel">
-        <div class="hm-panel-kicker">Your digital assistant</div>
-        <div class="hm-bot-illustration" aria-hidden="true"><span class="hm-bot-head"><i>›_</i></span><span class="hm-bot-body"></span></div>
-        <h2><span>Dost</span> AI</h2>
-        <h3>Guidance, one question at a time.</h3>
-        <ul><li>Understand general processes</li><li>Get help finding next steps</li><li>Explore relevant resources</li></ul>
-        <a class="hm-btn hm-btn-primary" href="/dost">Ask Dost AI Now <span aria-hidden="true">→</span></a>
-        <p class="hm-panel-disclaimer">AI responses may need verification. Dost AI is not a substitute for professional advice.</p>
-      </article>
-      <article class="hm-updates-panel">
-        <div class="hm-panel-title"><span class="hm-panel-symbol">✦</span><div><div class="hm-panel-kicker">Simple. Clear. Accessible.</div><h2>How HelpMeDost Works</h2></div></div>
-        <div class="hm-update-list">
-          <div class="hm-update"><span class="hm-update-icon">01</span><div><strong>Tell us what you need</strong><p>Share your question or concern in simple words.</p></div></div>
-          <div class="hm-update"><span class="hm-update-icon">02</span><div><strong>Get a reference</strong><p>For submitted requests, keep your reference number safe.</p></div></div>
-          <div class="hm-update"><span class="hm-update-icon">03</span><div><strong>Track your request</strong><p>Return to check available status updates.</p></div></div>
-        </div>
-        <a class="hm-text-link" href="/track">Track a request <span aria-hidden="true">→</span></a>
-      </article>
-      <article class="hm-human-panel">
-        <div class="hm-human-icon">☏</div>
-        <div class="hm-panel-kicker">Prefer human support?</div>
-        <h2>Need Human Assistance?</h2>
-        <p>Share your concern with HelpMeDost. Our team can review the request; staff availability and response times may vary.</p>
-        <a class="hm-btn hm-btn-orange" href="/request-help">Request Assistance <span aria-hidden="true">→</span></a>
-        <div class="hm-human-decoration" aria-hidden="true">✳</div>
-      </article>
-    </div>
+  <section class="hm-reference-lower">
+    <article class="hm-reference-dost">
+      <div class="hm-robot-art" aria-hidden="true"><div class="robot-antenna"></div><div class="robot-head"><span>● ●</span><i>⌣</i></div><div class="robot-body"><b>h</b></div><div class="robot-hand"></div></div>
+      <div class="hm-dost-content"><h2>Dost <span>AI</span></h2><h3>Your Digital Assistant</h3><ul><li>Get instant guidance</li><li>Understand processes</li><li>Find relevant resources</li></ul><a href="/dost">Ask Dost AI Now <b>→</b></a></div>
+    </article>
+    <article class="hm-reference-updates">
+      <div class="hm-ref-panel-heading"><span>⚑</span><h2>Latest Updates &amp; Circulars</h2><a href="/request-help">View All →</a></div>
+      <a href="/request-help" class="hm-ref-update"><span>▤</span><strong>Delhi Government School Admission Guidance</strong><em>Explore</em></a>
+      <a href="/request-help" class="hm-ref-update"><span>▤</span><strong>EWS / DG Admission – Application Support</strong></a>
+      <a href="/request-help" class="hm-ref-update"><span>▤</span><strong>Cyber Safety Awareness – Student Resources</strong></a>
+      <a href="/request-help" class="hm-ref-update"><span>▤</span><strong>RTI: How to File and Track Your Application</strong></a>
+      <p class="hm-update-note">Guidance topics shown here. Check official department notifications for current dates and rules.</p>
+    </article>
+    <article class="hm-reference-human">
+      <div class="hm-human-art" aria-hidden="true"><div class="human-head"></div><div class="human-hair"></div><div class="human-headset"></div><div class="human-body"></div></div>
+      <div class="hm-human-content"><span>☏</span><h2>Need Human Assistance?</h2><p>Talk to our helpdesk team for personalised support.</p><a href="/request-help">Request Human Assistance <b>→</b></a></div>
+    </article>
   </section>
 
-  <section class="hm-values-strip">
-    <div class="hm-container hm-values-grid">
-      <div><span class="hm-value-icon">♧</span><p><strong>Students &amp; Parents</strong><small>Support for families</small></p></div>
-      <div><span class="hm-value-icon">↗</span><p><strong>Clear Next Steps</strong><small>Simple request tracking</small></p></div>
-      <div><span class="hm-value-icon">✓</span><p><strong>Privacy Minded</strong><small>We aim to protect your data</small></p></div>
-      <div><span class="hm-value-icon">♡</span><p><strong>Inclusive &amp; Accessible</strong><small>Designed for everyone</small></p></div>
-    </div>
+  <section class="hm-reference-trust">
+    <div><span>👥</span><p><strong>Students &amp; Parents</strong><small>Support</small></p></div>
+    <div><span>ϟ</span><p><strong>Quick Resolution</strong><small>(Track Your Request)</small></p></div>
+    <div><span>🛡</span><p><strong>Safe &amp; Confidential</strong><small>(Your Data is Protected)</small></p></div>
+    <div><span>♡</span><p><strong>Inclusive &amp; Accessible</strong><small>(For Everyone)</small></p></div>
   </section>
+  <p class="hm-image-credit">Family photograph: <a href="https://www.pexels.com/photo/happy-family-sitting-and-looking-at-a-laptop-4260753/" target="_blank" rel="noreferrer">August de Richelieu / Pexels</a></p>
 </BaseLayout>
