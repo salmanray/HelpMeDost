@@ -33,10 +33,10 @@ const { title = "HelpMeDost | A little help goes a long way", description = "Fri
     if (!response.ok || !data.authenticated || user?.purpose !== "user" || user?.user_type !== "public") return;
     const name = user.full_name || "My Account";
     const email = user.email || "";
-    const initials = name.trim().split(/\\s+/).slice(0,2).map(part => part[0]).join("").toUpperCase() || "U";
+    const initials = name.trim().split(/\s+/).slice(0,2).map(part => part[0]).join("").toUpperCase() || "U";
     document.querySelectorAll('[data-auth-link="login"], [data-auth-link="register"]').forEach(link => link.hidden = true);
     document.querySelectorAll('[data-auth-link="account"], [data-auth-link="mobile-account"]').forEach(node => node.hidden = false);
-    setText("[data-user-name]", name.split(/\\s+/)[0]);
+    setText("[data-user-name]", name.split(/\s+/)[0]);
     setText("[data-user-fullname]", name);
     setText("[data-user-email]", email);
     document.querySelectorAll("[data-user-avatar]").forEach(node => node.textContent = initials);
