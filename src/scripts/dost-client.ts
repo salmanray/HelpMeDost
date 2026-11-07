@@ -66,7 +66,11 @@ async function loadSession() {
   await loadCategories();
   const response = await fetch("/api/chat/session", { cache: "no-store" });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.error || "Could not load your chat history.");
+  if (!response.ok) {
+    // A history read failure must not block a user from attempting to start a preview.
+    notice.textContent = data.error || "Previous chat history is temporarily unavailable. You can still try starting a preview.";
+    return;
+  }
   if (!data.session) return;
   session = data.session as Record<string, any>; const loadedSession = session; categorySelect.value = loadedSession.category_slug; categorySelect.disabled = true;
   showHistory(data.messages || []); startPanel.classList.add("hidden");
@@ -92,13 +96,21 @@ startButton?.addEventListener("click", async () => {
   try {
     const response = await fetch("/api/chat/session", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ category: categorySelect.value }) });
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.error || "Could not start your chat.");
+    if (!response.ok) {
+      const diagnostic = [data.diagnostic, data.detail].filter(Boolean).join(": ");
+      throw new Error([data.error || "Could not start your chat.", diagnostic].filter(Boolean).join(" — "));
+    }
     session = data.session as Record<string, any>; const createdSession = session; categorySelect.value = createdSession.category.slug; categorySelect.disabled = true;
     startPanel.classList.add("hidden"); form.classList.remove("hidden"); notice.textContent = ""; startCountdown(data.remainingSeconds);
     if (!data.isNew) {
       const historyResponse = await fetch("/api/chat/session/" + encodeURIComponent(createdSession.id), { cache: "no-store" });
-      const history = await historyResponse.json(); showHistory(history.messages || []);
-      if (history.expired) setExpired(); else startCountdown(history.remainingSeconds);
+      const history = await historyResponse.json().catch(() => ({}));
+      if (historyResponse.ok) {
+        showHistory(history.messages || []);
+        if (history.expired) setExpired(); else startCountdown(history.remainingSeconds);
+      } else {
+        notice.textContent = history.error || "Previous messages could not be loaded, but you can continue if the preview is active.";
+      }
     }
     input.focus();
   } catch (error: any) { notice.textContent = error.message || "Could not start your chat."; startButton.disabled = false; }

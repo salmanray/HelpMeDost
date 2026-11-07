@@ -28,8 +28,14 @@ export const GET: APIRoute = async (context) => {
     const remainingSeconds = remainingChatSeconds(session.expires_at, session.server_now);
     return json({ session, messages, remainingSeconds, expired: remainingSeconds === 0 });
   } catch (error) {
-    console.error("Dost AI history lookup failed", { errorName: error instanceof Error ? error.name : "unknown" });
-    return json({ code: "CHAT_STORAGE_UNAVAILABLE", error: "Chat history is temporarily unavailable. Please retry." }, 503);
+    const errorName = error instanceof Error ? error.name : "unknown";
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error("Dost AI history lookup failed", { errorName, errorMessage });
+    const host = new URL(context.request.url).hostname;
+    const previewDebug = host.endsWith(".helpmedost.pages.dev") && host !== "helpmedost.pages.dev"
+      ? { diagnostic: errorName, detail: errorMessage.slice(0, 180) }
+      : {};
+    return json({ code: "CHAT_STORAGE_UNAVAILABLE", error: "Chat history is temporarily unavailable. Please retry.", ...previewDebug }, 503);
   }
 };
 
@@ -79,7 +85,13 @@ export const POST: APIRoute = async (context) => {
       isNew: createdNew
     }, 201);
   } catch (error) {
-    console.error("Dost AI session creation failed", { errorName: error instanceof Error ? error.name : "unknown" });
-    return json({ code: "CHAT_STORAGE_UNAVAILABLE", error: "We could not save your chat session. Please retry." }, 503);
+    const errorName = error instanceof Error ? error.name : "unknown";
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error("Dost AI session creation failed", { errorName, errorMessage });
+    const host = new URL(context.request.url).hostname;
+    const previewDebug = host.endsWith(".helpmedost.pages.dev") && host !== "helpmedost.pages.dev"
+      ? { diagnostic: errorName, detail: errorMessage.slice(0, 180) }
+      : {};
+    return json({ code: "CHAT_STORAGE_UNAVAILABLE", error: "We could not save your chat session. Please retry.", ...previewDebug }, 503);
   }
 };
