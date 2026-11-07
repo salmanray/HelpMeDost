@@ -286,3 +286,35 @@
   .hm-reference-trust strong { font-size: clamp(14px, .95vw, 20px); }
   .hm-reference-trust small { font-size: clamp(12px, .8vw, 17px); }
 }
+
+
+/* Reference-matched full-width layout and legible type */
+@media (min-width: 701px) {
+  .hm-reference-inner,.hm-reference-services,.hm-reference-lower,.hm-reference-trust {
+    width:calc(100% - clamp(36px,4.2vw,88px));max-width:none;
+  }
+  .hm-reference-inner{min-height:clamp(390px,27vw,470px);grid-template-columns:minmax(0,37%) minmax(0,63%)}
+  .hm-reference-copy{padding-left:clamp(22px,3vw,50px)}
+  .hm-reference-copy h1{font-size:clamp(43px,3.25vw,64px);line-height:1.04;max-width:720px;letter-spacing:-2px}
+  .hm-reference-copy p{font-size:clamp(17px,1.12vw,22px);max-width:690px}
+  .hm-reference-family{height:clamp(390px,27vw,470px)}
+  .hm-family-photo-wrap{right:clamp(205px,15vw,280px)}
+  .hm-family-photo-wrap img{object-fit:cover;object-position:center center}
+  .hm-family-service-pills{width:clamp(205px,15vw,280px);top:4%;bottom:4%}
+  .hm-family-service-pills a{height:clamp(52px,3.6vw,68px);font-size:clamp(14px,.95vw,19px)}
+  .hm-reference-section-head h2{font-size:clamp(25px,1.7vw,34px)}
+  .hm-ref-service{min-height:clamp(118px,8vw,150px)}
+  .hm-ref-icon{font-size:clamp(32px,2.2vw,45px)}
+  .hm-ref-service strong{font-size:clamp(14px,.95vw,18px)}
+  .hm-ref-service small{font-size:clamp(11px,.75vw,15px)}
+  .hm-reference-lower>article{min-height:clamp(225px,15vw,280px)}
+  .hm-reference-trust{min-height:clamp(82px,5.5vw,105px)}
+  .hm-reference-trust strong{font-size:clamp(14px,.95vw,19px)}
+  .hm-reference-trust small{font-size:clamp(12px,.8vw,16px)}
+}
+@media(max-width:700px){
+ .hm-reference-inner{width:100%}
+ .hm-reference-family{height:290px}
+ .hm-family-photo-wrap{inset:0 145px 0 0}
+ .hm-family-photo-wrap img{object-position:center center}
+}
