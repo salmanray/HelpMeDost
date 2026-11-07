@@ -231,3 +231,58 @@
 @media(max-width:1100px){.hm-reference-inner{width:calc(100% - 36px);grid-template-columns:42% 58%}.hm-reference-copy{padding-left:6px}.hm-reference-copy h1{font-size:clamp(33px,4vw,45px)}.hm-family-photo-wrap{right:185px}.hm-family-service-pills{width:190px}.hm-family-service-pills a{font-size:12px;padding:0 10px}.hm-reference-services,.hm-reference-lower,.hm-reference-trust{width:calc(100% - 36px)}.hm-reference-service-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.hm-reference-lower{grid-template-columns:1fr 1.15fr}.hm-reference-human{grid-column:1/-1;min-height:180px!important}.hm-human-content{max-width:75%}}
 @media(max-width:700px){.hm-reference-inner{width:100%;display:flex;flex-direction:column;align-items:stretch}.hm-reference-copy{padding:28px 22px 12px}.hm-reference-copy h1{font-size:clamp(34px,9vw,44px);letter-spacing:-1.2px}.hm-reference-copy p{font-size:16px}.hm-reference-family{height:280px}.hm-family-photo-wrap{inset:0 145px 0 0}.hm-family-service-pills{width:150px;top:12px;bottom:12px}.hm-family-service-pills a{height:43px;font-size:10px;gap:6px;padding:0 8px}.service-symbol{font-size:18px;width:22px}.hm-reference-actions a{font-size:14px;min-height:46px;padding:0 15px}.hm-reference-services,.hm-reference-lower,.hm-reference-trust{width:calc(100% - 28px)}.hm-reference-services{padding:18px 0}.hm-reference-section-head h2{font-size:21px}.hm-reference-section-head>a{font-size:12px}.hm-reference-service-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.hm-ref-service{min-height:108px}.hm-ref-service strong{font-size:13px}.hm-ref-service small{font-size:10px}.hm-reference-lower{grid-template-columns:1fr;gap:12px;margin-bottom:16px}.hm-reference-lower>article{min-height:210px}.hm-reference-human{grid-column:auto;min-height:200px!important}.hm-reference-trust{grid-template-columns:1fr 1fr;gap:10px;padding:14px}.hm-reference-trust>div{justify-content:flex-start;border:0;padding:5px}.hm-reference-trust>div>span{font-size:27px}.hm-reference-trust strong{font-size:11px}.hm-reference-trust small{font-size:10px}.hm-dost-content h2{font-size:31px}.hm-dost-content li{font-size:12px}.hm-ref-panel-heading h2{font-size:16px}.hm-ref-update strong{font-size:11px}}
 @media(max-width:380px){.hm-family-photo-wrap{right:130px}.hm-family-service-pills{width:136px}.hm-family-service-pills a{font-size:9px}.hm-human-content{max-width:75%}.hm-human-content h2{font-size:19px}.hm-human-art{right:-15px;transform:scale(.85);transform-origin:bottom right}}
+
+
+/* Desktop reference sizing: use the available viewport instead of a narrow fixed max-width */
+@media (min-width: 701px) {
+  .hm-reference-inner,
+  .hm-reference-services,
+  .hm-reference-lower,
+  .hm-reference-trust {
+    width: calc(100% - clamp(32px, 4vw, 88px));
+    max-width: none;
+  }
+  .hm-reference-inner {
+    min-height: clamp(390px, 25vw, 470px);
+    grid-template-columns: minmax(0, 38%) minmax(0, 62%);
+  }
+  .hm-reference-copy { padding-left: clamp(18px, 2vw, 42px); }
+  .hm-reference-copy h1 {
+    max-width: 760px;
+    font-size: clamp(44px, 3.15vw, 72px);
+    line-height: 1.04;
+    letter-spacing: -2.2px;
+  }
+  .hm-reference-copy p {
+    max-width: 720px;
+    font-size: clamp(17px, 1.15vw, 24px);
+    line-height: 1.42;
+  }
+  .hm-reference-pill { font-size: clamp(15px, .95vw, 20px); padding: 9px 19px; }
+  .hm-reference-family { height: 100%; min-height: clamp(390px, 25vw, 470px); }
+  .hm-family-photo-wrap { right: clamp(205px, 15vw, 300px); }
+  .hm-family-service-pills { width: clamp(205px, 15vw, 300px); top: 5%; bottom: 5%; }
+  .hm-family-service-pills a {
+    height: clamp(52px, 3.6vw, 70px);
+    font-size: clamp(14px, .95vw, 20px);
+    padding-inline: clamp(12px, 1.1vw, 22px);
+  }
+  .hm-reference-section-head h2 { font-size: clamp(26px, 1.8vw, 38px); }
+  .hm-reference-section-head>a { font-size: clamp(14px, 1vw, 20px); }
+  .hm-ref-service { min-height: clamp(118px, 8.2vw, 160px); padding: 16px 10px; }
+  .hm-ref-icon { font-size: clamp(32px, 2.2vw, 48px); }
+  .hm-ref-service strong { font-size: clamp(14px, .95vw, 20px); }
+  .hm-ref-service small { font-size: clamp(11px, .72vw, 16px); }
+  .hm-reference-lower>article { min-height: clamp(235px, 16vw, 300px); }
+  .hm-dost-content h2 { font-size: clamp(36px, 2.4vw, 52px); }
+  .hm-dost-content h3 { font-size: clamp(15px, 1vw, 21px); }
+  .hm-dost-content li { font-size: clamp(13px, .82vw, 18px); }
+  .hm-dost-content>a { font-size: clamp(14px, .9vw, 19px); }
+  .hm-ref-panel-heading h2 { font-size: clamp(19px, 1.3vw, 27px); }
+  .hm-ref-update strong { font-size: clamp(12px, .82vw, 18px); }
+  .hm-human-content h2 { font-size: clamp(22px, 1.5vw, 32px); }
+  .hm-human-content p { font-size: clamp(14px, .95vw, 20px); }
+  .hm-reference-trust { min-height: clamp(80px, 5.6vw, 112px); }
+  .hm-reference-trust strong { font-size: clamp(14px, .95vw, 20px); }
+  .hm-reference-trust small { font-size: clamp(12px, .8vw, 17px); }
+}
