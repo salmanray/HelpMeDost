@@ -151,3 +151,15 @@
  .site-header .brand-mark{width:43px;height:43px;font-size:33px}
  .site-header .brand-subtitle{font-size:9px}
 }
+
+/* Keep mobile signed-in status visible in the header, not inside the nav list */
+.hm-mobile-session{display:none;align-items:center;gap:7px;padding:4px 8px 4px 4px;margin-left:auto;margin-right:8px;border:1px solid #dce9e1;border-radius:999px;background:#f4fbf6;text-decoration:none;max-width:145px}
+.hm-mobile-session .hm-avatar{width:30px;height:30px;flex-basis:30px;font-size:13px}
+.hm-mobile-session-copy{display:grid;gap:1px;min-width:0}
+.hm-mobile-session-copy strong{font-size:11px;color:#20364a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hm-mobile-session-copy small{font-size:9px;color:#16804a;display:flex;align-items:center;gap:4px;white-space:nowrap}
+.hm-mobile-session-copy i{width:6px;height:6px;display:inline-block;border-radius:50%;background:#16a05a}
+.hm-mobile-session[hidden],.hm-mobile-signout[hidden]{display:none!important}
+.hm-mobile-signout{display:block;width:100%;padding:12px 13px;border:0;border-radius:10px;background:#fff;color:#a23a32;text-align:left;font:700 14px "DM Sans",sans-serif;cursor:pointer}
+@media(max-width:1180px){.hm-mobile-session:not([hidden]){display:flex}}
+@media(min-width:1181px){.hm-mobile-session{display:none!important}}
