@@ -83,3 +83,19 @@
 @media (max-width: 760px) {
   .site-header .mobile-menu-panel { max-height: min(72vh, 560px); overflow-y: auto; }
 }
+
+
+/* Functional, keyboard-accessible text-size controls */
+.hm-utility-access{display:flex;align-items:center;gap:7px;margin-left:auto}
+.hm-utility-access span{font-size:12px}
+.hm-utility-access button{min-width:30px;min-height:28px;padding:3px 7px;border:1px solid #ffffff80;border-radius:6px;background:transparent;color:#fff;font:700 12px "DM Sans",sans-serif;cursor:pointer}
+.hm-utility-access button:hover,.hm-utility-access button[aria-pressed="true"]{background:#fff;color:#06458c}
+.hm-utility-access button:focus-visible{outline:2px solid #ffcf8a;outline-offset:2px}
+.hm-utility-access button:disabled{opacity:.55;cursor:not-allowed}
+@media(max-width:760px){
+  .hm-utility-inner{gap:8px}
+  .hm-utility-tagline{display:none}
+  .hm-utility-access{display:flex;margin-left:auto;gap:5px}
+  .hm-utility-access span{font-size:10px}
+  .hm-utility-access button{min-width:28px;min-height:25px;padding:2px 6px;font-size:11px}
+}

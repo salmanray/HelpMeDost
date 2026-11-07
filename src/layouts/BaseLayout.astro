@@ -6,7 +6,7 @@ const { title = "HelpMeDost | A little help goes a long way", description = "Fri
 <html lang="en">
 <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="description" content={description} /><meta name="theme-color" content="#0754ad" /><title>{title}</title><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" /></head>
 <body>
-<div class="hm-utility-bar"><div class="hm-utility-inner"><span>✉ <a href="mailto:support@helpmedost.in">support@helpmedost.in</a></span><span class="hm-utility-tagline">Student • Parent • Citizen Assistance Portal</span><span class="hm-utility-access">Accessibility <b>A−</b> <b>A</b> <b>A+</b></span></div></div>
+<div class="hm-utility-bar"><div class="hm-utility-inner"><span>✉ <a href="mailto:support@helpmedost.in">support@helpmedost.in</a></span><span class="hm-utility-tagline">Student • Parent • Citizen Assistance Portal</span><div class="hm-utility-access" role="group" aria-label="Text size controls"><span>Text size</span><button type="button" data-font-size="decrease" aria-label="Decrease text size" title="Decrease text size">A−</button><button type="button" data-font-size="reset" aria-label="Reset text size" title="Reset text size" aria-pressed="true">A</button><button type="button" data-font-size="increase" aria-label="Increase text size" title="Increase text size">A+</button></div></div></div>
 <header class="site-header"><div class="container nav-wrap">
 <a class="brand" href="/" aria-label="HelpMeDost home"><span class="brand-mark">h</span><span>HelpMe<span class="brand-accent">Dost</span><small class="brand-subtitle">Student • Parent • Citizen Assistance Portal</small></span></a>
 <nav aria-label="Main navigation"><a href="/">Home</a><a href="/#services">Services⌄</a><a href="/dost">Dost AI</a><a href="/complaints">Complaints</a><a href="/counselling">Counselling</a><a href="/#how-it-works">Resources⌄</a><a href="/#how-it-works">About⌄</a><a href="/track">Track Request</a></nav>
@@ -23,5 +23,46 @@ const { title = "HelpMeDost | A little help goes a long way", description = "Fri
     document.querySelectorAll('[data-auth-link="login"], [data-auth-link="register"]').forEach(link => link.hidden = true);
     document.querySelectorAll('[data-auth-link="dashboard"]').forEach(link => link.hidden = false);
   } catch { /* Keep public navigation if session lookup is unavailable. */ }
+})();
+</script>
+<script>
+(() => {
+  const root = document.documentElement;
+  const key = "helpmedost-text-zoom";
+  const min = 90;
+  const max = 120;
+  const step = 10;
+  let level = 100;
+
+  try {
+    const saved = Number(localStorage.getItem(key));
+    if ([90, 100, 110, 120].includes(saved)) level = saved;
+  } catch { /* Storage may be unavailable; controls still work for this page view. */ }
+
+  const apply = () => {
+    root.style.zoom = (level / 100).toString();
+    document.querySelectorAll("[data-font-size]").forEach((button) => {
+      button.setAttribute("aria-pressed", String(
+        (button.dataset.fontSize === "reset" && level === 100) ||
+        (button.dataset.fontSize === "increase" && level === max) ||
+        (button.dataset.fontSize === "decrease" && level === min)
+      ));
+      button.disabled =
+        (button.dataset.fontSize === "increase" && level === max) ||
+        (button.dataset.fontSize === "decrease" && level === min);
+    });
+  };
+
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-font-size]");
+    if (!button) return;
+    if (button.dataset.fontSize === "increase") level = Math.min(max, level + step);
+    if (button.dataset.fontSize === "decrease") level = Math.max(min, level - step);
+    if (button.dataset.fontSize === "reset") level = 100;
+    try { localStorage.setItem(key, String(level)); } catch { /* Non-persistent fallback. */ }
+    apply();
+  });
+
+  apply();
 })();
 </script></body></html>
