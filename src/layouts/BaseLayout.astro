@@ -10,20 +10,51 @@ const { title = "HelpMeDost | A little help goes a long way", description = "Fri
 <header class="site-header"><div class="container nav-wrap">
 <a class="brand" href="/" aria-label="HelpMeDost home"><span class="brand-mark">h</span><span>HelpMe<span class="brand-accent">Dost</span><small class="brand-subtitle">Student • Parent • Citizen Assistance Portal</small></span></a>
 <nav aria-label="Main navigation"><a href="/">Home</a><a href="/#services">Services⌄</a><a href="/dost">Dost AI</a><a href="/complaints">Complaints</a><a href="/counselling">Counselling</a><a href="/#how-it-works">Resources⌄</a><a href="/#how-it-works">About⌄</a><a href="/track">Track Request</a></nav>
-<div class="hm-header-actions"><a class="hm-login-link" href="/login" data-auth-link="login">♙ Login</a><a class="button button-small desktop-get-help" href="/register" data-auth-link="register">♧ Register</a><a class="hm-login-link" href="/account" data-auth-link="dashboard" hidden>My Dashboard</a></div>
-<details class="mobile-menu"><summary aria-label="Open navigation menu"><span class="menu-icon" aria-hidden="true"></span></summary><nav class="mobile-menu-panel" aria-label="Mobile navigation"><a href="/">Home</a><a href="/#services">Services</a><a href="/dost">Dost AI</a><a href="/complaints">Complaints</a><a href="/counselling">Counselling</a><a href="/#how-it-works">Resources &amp; About</a><a href="/track">Track Request</a><a href="/plans">Plans</a><a href="/login" data-auth-link="login">Login</a><a href="/register" data-auth-link="register">Register</a><a href="/account" data-auth-link="dashboard" hidden>My Dashboard</a><a class="mobile-menu-cta" href="/request-help">Get Help Now ↗</a></nav></details>
+<div class="hm-header-actions">
+  <a class="hm-login-link" href="/login" data-auth-link="login">Login</a>
+  <a class="button button-small desktop-get-help" href="/register" data-auth-link="register">Register</a>
+  <details class="hm-account-menu" data-auth-link="account" hidden>
+    <summary aria-label="Open your account menu"><span class="hm-avatar" data-user-avatar>S</span><span class="hm-account-copy"><strong data-user-name>Account</strong><small><i></i> Signed in</small></span><span class="hm-account-chevron">⌄</span></summary>
+    <div class="hm-account-popover"><div class="hm-account-identity"><strong data-user-fullname>Signed in</strong><span data-user-email></span><small><i></i> Signed in</small></div><a href="/account">My Dashboard</a><button type="button" data-sign-out>Sign out</button></div>
+  </details>
+</div>
+<details class="mobile-menu"><summary aria-label="Open navigation menu"><span class="menu-icon" aria-hidden="true"></span></summary><nav class="mobile-menu-panel" aria-label="Mobile navigation">
+  <div class="hm-mobile-auth" data-auth-link="mobile-account" hidden><span class="hm-avatar" data-user-avatar>S</span><span><strong data-user-fullname>Signed in</strong><small data-user-email></small><em><i></i> Signed in</em></span><a href="/account">My Dashboard</a><button type="button" data-sign-out>Sign out</button></div>
+  <a href="/">Home</a><a href="/#services">Services</a><a href="/dost">Dost AI</a><a href="/complaints">Complaints</a><a href="/counselling">Counselling</a><a href="/#how-it-works">Resources &amp; About</a><a href="/track">Track Request</a><a href="/plans">Plans</a><a href="/login" data-auth-link="login">Login</a><a href="/register" data-auth-link="register">Register</a><a class="mobile-menu-cta" href="/request-help">Get Help Now ↗</a>
+</nav></details>
 </div></header><main><slot /></main><footer class="site-footer"><div class="container footer-inner"><a class="brand" href="/"><span class="brand-mark">h</span><span>HelpMe<span class="brand-accent">Dost</span></span></a><p>Support, Guidance and Solutions for Students, Parents and Families.</p><span>© {new Date().getFullYear()} HelpMeDost</span><a href="/admin-login" aria-label="Staff admin sign in">Staff login</a></div><div class="container footer-note">HelpMeDost ek assistance platform hai. Yeh emergency, legal, medical ya professional services ka replacement nahi hai.</div></footer>
 <script>
 (async () => {
+  const setText = (selector, value) => document.querySelectorAll(selector).forEach(node => node.textContent = value);
   try {
-    const response = await fetch("/api/auth/me", { cache: "no-store" });
-    if (!response.ok) return;
-    const data = await response.json();
-    if (!data.authenticated || data.user?.purpose !== "user" || data.user?.user_type !== "public") return;
+    const response = await fetch("/api/auth/me", { cache: "no-store", credentials: "same-origin" });
+    const data = await response.json().catch(() => ({}));
+    const user = data.user;
+    if (!response.ok || !data.authenticated || user?.purpose !== "user" || user?.user_type !== "public") return;
+    const name = user.full_name || "My Account";
+    const email = user.email || "";
+    const initials = name.trim().split(/\s+/).slice(0,2).map(part => part[0]).join("").toUpperCase() || "U";
     document.querySelectorAll('[data-auth-link="login"], [data-auth-link="register"]').forEach(link => link.hidden = true);
-    document.querySelectorAll('[data-auth-link="dashboard"]').forEach(link => link.hidden = false);
-  } catch { /* Keep public navigation if session lookup is unavailable. */ }
+    document.querySelectorAll('[data-auth-link="account"], [data-auth-link="mobile-account"]').forEach(node => node.hidden = false);
+    setText("[data-user-name]", name.split(/\s+/)[0]);
+    setText("[data-user-fullname]", name);
+    setText("[data-user-email]", email);
+    document.querySelectorAll("[data-user-avatar]").forEach(node => node.textContent = initials);
+  } catch { /* Keep guest navigation if session lookup is unavailable. */ }
 })();
+document.addEventListener("click", async event => {
+  const button = event.target.closest("[data-sign-out]");
+  if (!button) return;
+  button.disabled = true;
+  button.textContent = "Signing out…";
+  try {
+    await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" });
+    location.reload();
+  } catch {
+    button.disabled = false;
+    button.textContent = "Sign out";
+  }
+});
 </script>
 <script>
 (() => {
