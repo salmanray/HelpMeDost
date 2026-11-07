@@ -93,14 +93,23 @@ export const POST: APIRoute = async (context) => {
               content: redactChatPromptText(String(item.message).slice(0, CHAT_MESSAGE_MAX_LENGTH))
             }))];
           const model = env.DOST_AI_MODEL?.trim() || DEFAULT_CHAT_MODEL;
-          const result = await ai.run(model, { messages, max_tokens: 350, temperature: 0.35 });
+          const result = await ai.run(model, {
+            messages,
+            max_tokens: 350,
+            temperature: 0.35,
+            chat_template_kwargs: { enable_thinking: false }
+          });
           reply = typeof result?.response === "string" ? result.response.trim()
             : typeof result?.choices?.[0]?.message?.content === "string" ? result.choices[0].message.content.trim()
               : "";
           if (!reply || reply.length > 6000) throw new Error("Invalid model response");
           aiAvailable = true;
         } catch (error) {
-          console.warn("Dost AI inference unavailable", { sessionSuffix, errorName: error instanceof Error ? error.name : "unknown" });
+          console.warn("Dost AI inference unavailable", {
+            sessionSuffix,
+            errorName: error instanceof Error ? error.name : "unknown",
+            errorMessage: error instanceof Error ? error.message.slice(0, 240) : String(error).slice(0, 240)
+          });
           reply = unavailableMessage;
           replyKind = "ai_unavailable";
         }
