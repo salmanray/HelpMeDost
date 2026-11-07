@@ -132,7 +132,7 @@
 }
 @media(max-width:1180px){
  .site-header .nav-wrap>nav,.hm-header-actions{display:none!important}
- .site-header .mobile-menu{display:block;position:relative;margin-left:auto}
+ .site-header .mobile-menu{display:block;position:relative;margin-left:0;flex:0 0 auto}
  .site-header .mobile-menu summary{list-style:none;display:grid;place-items:center;width:46px;height:46px;border:1px solid #e0e7ed;border-radius:13px;background:#fff;cursor:pointer}
  .site-header .mobile-menu summary::-webkit-details-marker{display:none}
  .site-header .mobile-menu .menu-icon,.site-header .mobile-menu .menu-icon:before,.site-header .mobile-menu .menu-icon:after{display:block;width:21px;height:2.5px;background:#172b45;border-radius:3px;position:relative}
