@@ -22,7 +22,7 @@ export const POST: APIRoute = async (context) => {
     }
 
     const sql = getDb(context);
-    const rows = await sql`SELECT id, status, payment_status, amount_inr
+    const rows = await sql`SELECT id, status, payment_status, amount_inr, razorpay_order_id
       FROM paid_query_orders
       WHERE reference_code = ${reference} AND user_profile_id = ${user.id}
       LIMIT 1`;
@@ -35,6 +35,21 @@ export const POST: APIRoute = async (context) => {
     const { keyId, keySecret } = razorpayConfig(context);
     const amount = Number(record.amount_inr) * 100;
     if (!Number.isSafeInteger(amount) || amount <= 0) return json({ error: "Invalid order amount." }, 400);
+
+    if (record.razorpay_order_id) {
+      const existing = await razorpayRequest<{id:string;amount:number;currency:string;status:string}>(
+        "/orders/" + encodeURIComponent(record.razorpay_order_id), keyId, keySecret
+      );
+      if (existing.id !== record.razorpay_order_id || existing.amount !== amount || existing.currency !== "INR") {
+        return json({ code: "ORDER_MISMATCH", error: "Existing payment order does not match this request." }, 409);
+      }
+      if (existing.status === "paid") {
+        return json({ code: "PAYMENT_RECONCILIATION_REQUIRED", error: "This order already has a payment attempt. Check its status before continuing." }, 409);
+      }
+      console.info("Razorpay order reused", { referenceSuffix: reference.slice(-6), orderSuffix: existing.id.slice(-6), orderStatus: existing.status });
+      return json({ orderId: existing.id, amount: existing.amount, currency: existing.currency, keyId });
+    }
+
     const order = await razorpayRequest<{id:string;amount:number;currency:string}>("/orders", keyId, keySecret, {
       amount, currency: "INR", receipt: reference, notes: { helpmedost_reference: reference, order_type: type, profile_id: user.id }
     });
@@ -44,8 +59,12 @@ export const POST: APIRoute = async (context) => {
       SET payment_provider = 'razorpay', payment_reference = ${order.id},
           razorpay_order_id = ${order.id}, updated_at = now()
       WHERE id = ${record.id} AND user_profile_id = ${user.id} AND payment_status = 'pending'
+        AND razorpay_order_id IS NULL
       RETURNING id`;
-    if (!updated.length) return json({ error: "This payment request has already changed. Refresh and try again." }, 409);
+    if (!updated.length) {
+      console.warn("Razorpay order could not be attached", { referenceSuffix: reference.slice(-6), orderSuffix: order.id.slice(-6) });
+      return json({ code: "ORDER_STATE_CHANGED", error: "This payment request changed. Check payment status before retrying." }, 409);
+    }
     return json({ orderId: order.id, amount: order.amount, currency: order.currency, keyId });
   } catch (error) {
     console.error("Razorpay order creation failed", error);

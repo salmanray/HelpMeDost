@@ -24,6 +24,17 @@ Set runtime variables:
 
 Keep DATABASE_URL as an encrypted secret. Do not add Firebase service-account private keys or expose database credentials in browser code.
 
+## Local sign-in
+
+Cloudflare's encrypted production/preview secrets are not automatically copied into local development. To configure local sign-in:
+
+1. Copy `.dev.vars.example` to `.dev.vars` and fill in the values from a development Firebase Web app and an isolated development Neon database.
+2. The local database must contain the existing HelpMeDost base schema. Apply the Dost AI migration only to this development database when you want to test chat.
+3. Never put a production `DATABASE_URL` in `.dev.vars`; sign-in creates user profile and session records.
+4. Restart `npm run dev` after saving `.dev.vars`.
+
+`.dev.vars` is ignored by Git. Local sign-in will return a Firebase configuration error until `PUBLIC_FIREBASE_API_KEY` and the other web app values are filled in. The server also needs `FIREBASE_API_KEY` and `DATABASE_URL` to create a HelpMeDost session.
+
 ## Initial launch
 The first release focuses on the Student Help Portal. The wider platform will be developed in phases, following the approved HelpMeDost product blueprint.
 

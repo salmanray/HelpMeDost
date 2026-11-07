@@ -8,6 +8,18 @@ import {
   verifyFirebaseIdToken,
 } from "../../../lib/auth";
 
+function safeUserRedirect(value: unknown) {
+  const path = cleanText(value, 500);
+  if (!path.startsWith("/") || path.startsWith("//") || path.includes("\\") || /[\r\n]/.test(path)) return "/account";
+  try {
+    const target = new URL(path, "https://helpmedost.local");
+    if (target.origin !== "https://helpmedost.local" || target.pathname.startsWith("/admin")) return "/account";
+    return path;
+  } catch {
+    return "/account";
+  }
+}
+
 export const POST: APIRoute = async (context) => {
   try {
     const body = await context.request.json();
@@ -138,7 +150,7 @@ export const POST: APIRoute = async (context) => {
 
     const token = await issueSession(context, profiles[0].id, purpose);
     return new Response(
-      JSON.stringify({ ok: true, redirectTo: purpose === "admin" ? "/admin" : "/account" }),
+      JSON.stringify({ ok: true, redirectTo: purpose === "admin" ? "/admin" : safeUserRedirect(body?.next) }),
       {
         status: 200,
         headers: {

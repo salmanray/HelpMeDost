@@ -1,6 +1,7 @@
 import { neon } from "@neondatabase/serverless";
+import type { APIContext } from "astro";
 
-export function getDb(context: { locals: { runtime?: { env?: { DATABASE_URL?: string } } } }) {
+export function getDb(context: APIContext) {
   const connectionString = context.locals.runtime?.env?.DATABASE_URL;
   if (!connectionString) throw new Error("DATABASE_URL is not configured.");
   return neon(connectionString);

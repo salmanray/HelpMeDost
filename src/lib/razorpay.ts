@@ -1,8 +1,17 @@
+import type { APIContext } from "astro";
+
 const encoder = new TextEncoder();
 
-export async function hmacSha256Hex(secret: string, message: string) {
+export async function hmacSha256Hex(secret: string, message: string | ArrayBuffer | Uint8Array) {
   const key = await crypto.subtle.importKey("raw", encoder.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
-  const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(message));
+  const rawData = typeof message === "string"
+    ? encoder.encode(message)
+    : message instanceof Uint8Array
+      ? message
+      : new Uint8Array(message);
+  const data = new Uint8Array(rawData.byteLength);
+  data.set(rawData);
+  const signature = await crypto.subtle.sign("HMAC", key, data.buffer);
   return Array.from(new Uint8Array(signature), b => b.toString(16).padStart(2, "0")).join("");
 }
 
@@ -13,7 +22,7 @@ export function safeEqual(a: string, b: string) {
   return diff === 0;
 }
 
-export function razorpayConfig(context: { locals: { runtime?: { env?: Record<string, string | undefined> } } }) {
+export function razorpayConfig(context: APIContext) {
   const env = context.locals.runtime?.env;
   // Cloudflare dashboard copy/paste can leave surrounding whitespace in secrets.
   const keyId = env?.RAZORPAY_KEY_ID?.trim();

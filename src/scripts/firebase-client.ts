@@ -59,7 +59,7 @@ export async function sendPasswordReset(email: string) {
   await sendPasswordResetEmail(auth, email.trim());
 }
 export async function finishHelpMeDostSession(user: { getIdToken: () => Promise<string> }, details: {
-  name?: string; mobile?: string; mode?: "register" | "login"; purpose?: "user" | "admin";
+  name?: string; mobile?: string; mode?: "register" | "login"; purpose?: "user" | "admin"; next?: string;
 } = {}) {
   const idToken = await user.getIdToken(true);
   const response = await fetch("/api/auth/firebase-session", {

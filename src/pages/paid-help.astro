@@ -14,29 +14,76 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 </div>
 <div class="form-actions"><button class="button" type="submit" id="pay-button">Continue to secure payment →</button><span class="form-message" id="pay-message" role="status"></span></div>
 <div id="paid-result" class="result-card hidden" aria-live="polite"></div>
+<div id="payment-recovery" class="form-actions hidden" aria-live="polite">
+  <button class="button button-light" id="retry-verification" type="button">Retry verification</button>
+  <button class="button button-light" id="check-payment-status" type="button">Check payment status</button>
+  <button class="button" id="resume-checkout" type="button" hidden>Resume checkout</button>
+</div>
 <p class="hint">You must be signed in. Refund eligibility is based on three weekdays (excluding weekends) and no recorded response.</p>
 </form>
 </section>
 <script>
-const form=document.querySelector("#paid-form"),button=document.querySelector("#pay-button"),message=document.querySelector("#pay-message"),result=document.querySelector("#paid-result");
-async function post(url,data){const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});const d=await r.json();if(!r.ok)throw Error(d.error||"Request failed.");return d;}
-form?.addEventListener("submit",async e=>{
- e.preventDefault();button.disabled=true;message.textContent="";result.classList.add("hidden");button.textContent="Preparing secure checkout…";
- let ref="";
+import { checkoutCallbackRecoveryMessage } from "../lib/payment-lifecycle.mjs";
+const form=document.querySelector("#paid-form"),button=document.querySelector("#pay-button"),message=document.querySelector("#pay-message"),result=document.querySelector("#paid-result"),recovery=document.querySelector("#payment-recovery"),retryButton=document.querySelector("#retry-verification"),statusButton=document.querySelector("#check-payment-status"),resumeButton=document.querySelector("#resume-checkout");
+const pendingStorageKey="hmd_pending_paid_query";
+const resumeReference=new URLSearchParams(location.search).get("resume")||"";
+function readSavedReference(){try{return sessionStorage.getItem(pendingStorageKey)||"";}catch{return "";}}
+function saveReference(value){try{sessionStorage.setItem(pendingStorageKey,value);}catch{}}
+function clearReference(){try{sessionStorage.removeItem(pendingStorageKey);}catch{}}
+let activeReferenceCode=readSavedReference()||resumeReference,pendingVerification=null,checkoutOpen=false;
+if(resumeReference&&!readSavedReference())saveReference(resumeReference);
+async function requestJson(url,options){const r=await fetch(url,options),d=await r.json().catch(()=>({}));if(!r.ok)throw Object.assign(Error(d.error||"Request failed."),{code:d.code||"REQUEST_FAILED",status:r.status});return d;}
+async function post(url,data){return requestJson(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});}
+function setRecovery(text,{canRetryVerification=false,canResume=false}={}){result.textContent=text;result.classList.remove("hidden");recovery.classList.remove("hidden");retryButton.hidden=!canRetryVerification;resumeButton.hidden=!canResume;button.disabled=true;button.textContent="Payment status needs checking";message.textContent="";}
+function finishPayment(status){
+ recovery.classList.add("hidden");result.classList.remove("hidden");button.disabled=false;button.textContent="Continue to secure payment →";message.textContent="";pendingVerification=null;
+ if(status==="paid"){result.textContent="Payment confirmed. Your reference is "+activeReferenceCode+". You can check the response in your HelpMeDost account.";form.reset();}
+ else if(status==="refunded"){result.textContent="Razorpay confirms this payment was refunded. Reference: "+activeReferenceCode+".";}
+ clearReference();activeReferenceCode="";
+}
+async function checkPaymentStatus(){
+ if(!activeReferenceCode)return;
+ statusButton.disabled=true;statusButton.textContent="Checking…";
+ try{const d=await requestJson("/api/payments/status?referenceCode="+encodeURIComponent(activeReferenceCode));
+  if(d.paymentStatus==="paid"||d.paymentStatus==="refunded"){finishPayment(d.paymentStatus);return;}
+  if(d.paymentStatus==="not_paid"){setRecovery("Razorpay did not find a captured payment for this request. You can safely resume checkout for the same request.",{canResume:true});return;}
+  if(d.paymentStatus==="authorised"){setRecovery("Razorpay has an authorised payment that is still processing. Do not pay again. Check the status again shortly.");return;}
+  setRecovery("Payment is still awaiting confirmation. Do not pay again. Check again shortly or retry verification if the checkout completed.",{canRetryVerification:Boolean(pendingVerification)});
+ }catch(error){setRecovery((error.message||"Payment status is unavailable.")+" No new payment was started. Retry the status check shortly.",{canRetryVerification:Boolean(pendingVerification)});}
+ finally{statusButton.disabled=false;statusButton.textContent="Check payment status";}
+}
+async function retryVerification(){
+ if(!pendingVerification)return checkPaymentStatus();
+ retryButton.disabled=true;retryButton.textContent="Verifying…";
+ try{const d=await post("/api/payments/verify",pendingVerification);if(d.paymentStatus==="paid"||d.paymentStatus==="refunded"){finishPayment(d.paymentStatus);return;}setRecovery("Payment verification is pending. Do not pay again. Check status shortly.",{canRetryVerification:true});}
+ catch(error){setRecovery((error.message||"Payment verification is pending.")+" Do not pay again. Retry verification or check payment status.",{canRetryVerification:true});}
+ finally{retryButton.disabled=false;retryButton.textContent="Retry verification";}
+}
+async function beginCheckout(reference,phone=""){
+ activeReferenceCode=reference;saveReference(reference);button.disabled=true;button.textContent="Preparing secure checkout…";message.textContent="";
  try{
-  const data=Object.fromEntries(new FormData(form).entries());
-  const created=await post("/api/payments/paid-query",data);ref=created.referenceCode;
-  const order=await post("/api/payments/create-order",{referenceCode:ref,orderType:"paid_query"});
+  const order=await post("/api/payments/create-order",{referenceCode:reference,orderType:"paid_query"});
   await new Promise((resolve,reject)=>{if((window).Razorpay)return resolve();const script=document.createElement("script");script.src="https://checkout.razorpay.com/v1/checkout.js";script.onload=resolve;script.onerror=()=>reject(Error("Could not load secure payment window."));document.head.append(script);});
-  const RazorpayCtor=window.Razorpay;
-  const checkout=new RazorpayCtor({key:order.keyId,amount:order.amount,currency:order.currency,name:"HelpMeDost",description:"Paid assistance request",order_id:order.orderId,prefill:{contact:data.phone},notes:{reference_code:ref},theme:{color:"#3659e8"},handler:async response=>{
-    try{await post("/api/payments/verify",{...response,referenceCode:ref,orderType:"paid_query"});result.textContent="Payment confirmed. Your reference is "+ref+". You can check the response in your HelpMeDost account.";result.classList.remove("hidden");form.reset();}
-    catch(error){message.textContent=(error.message||"Payment verification is pending.")+" If money was deducted, do not pay again; contact support with reference "+ref+".";}
-    finally{button.disabled=false;button.textContent="Continue to secure payment →";}
-  },modal:{ondismiss:()=>{button.disabled=false;button.textContent="Continue to secure payment →";}}});
-  checkout.on("payment.failed",()=>{message.textContent="Payment did not complete. No request was submitted as paid.";button.disabled=false;button.textContent="Continue to secure payment →";});
-  checkout.open();
- }catch(error){message.textContent=error.message||"Could not start checkout.";button.disabled=false;button.textContent="Continue to secure payment →";}
+  const Checkout=window.Razorpay,checkout=new Checkout({key:order.keyId,amount:order.amount,currency:order.currency,name:"HelpMeDost",description:"Paid assistance request",order_id:order.orderId,prefill:phone?{contact:phone}:{},notes:{reference_code:reference},theme:{color:"#3659e8"},handler:async response=>{
+   pendingVerification={...response,referenceCode:reference,orderType:"paid_query"};
+   try{const verified=await post("/api/payments/verify",pendingVerification);if(verified.paymentStatus==="paid"||verified.paymentStatus==="refunded"){finishPayment(verified.paymentStatus);return;}setRecovery("Payment verification is pending. Do not pay again. Retry verification or check payment status.",{canRetryVerification:true});}
+   catch(error){setRecovery((error.message?error.message+" ":"")+checkoutCallbackRecoveryMessage(reference),{canRetryVerification:true});}
+  },modal:{ondismiss:()=>{checkoutOpen=false;if(activeReferenceCode)setRecovery("Checkout closed. Before trying again, check whether Razorpay captured the payment.");}}});
+  checkout.on("payment.failed",()=>{checkoutOpen=false;setRecovery("Razorpay did not confirm a completed payment. Check status before retrying so you are not charged twice.");});
+  checkoutOpen=true;checkout.open();
+ }catch(error){
+  if(error.code==="PAYMENT_RECONCILIATION_REQUIRED"){setRecovery("This order may already have a payment. Check its status before doing anything else.");await checkPaymentStatus();}
+  else{message.textContent=error.message||"Could not start checkout.";button.disabled=false;button.textContent="Continue to secure payment →";clearReference();activeReferenceCode="";}
+ }
+}
+form?.addEventListener("submit",async e=>{
+ e.preventDefault();if(checkoutOpen)return;
+ if(activeReferenceCode){await checkPaymentStatus();return;}
+ button.disabled=true;message.textContent="";result.classList.add("hidden");
+ try{const data=Object.fromEntries(new FormData(form).entries());const created=await post("/api/payments/paid-query",data);await beginCheckout(created.referenceCode,data.phone);}
+ catch(error){message.textContent=error.message||"Could not create the request.";button.disabled=false;button.textContent="Continue to secure payment →";}
 });
+retryButton?.addEventListener("click",retryVerification);statusButton?.addEventListener("click",checkPaymentStatus);resumeButton?.addEventListener("click",()=>beginCheckout(activeReferenceCode,document.querySelector("#phone").value));
+if(activeReferenceCode)setRecovery("A previous payment attempt is awaiting confirmation. Do not pay again until its status is checked.");
 </script>
 </BaseLayout>

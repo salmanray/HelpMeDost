@@ -1,61 +1,64 @@
 import type { APIRoute } from "astro";
-import { getDb, json, cleanText } from "../../../lib/db";
 import { currentAuth } from "../../../lib/auth";
+import { getDb, json } from "../../../lib/db";
+import { findPaidQueryByReference, settlePaidQueryCaptured, settlePaidQueryRefunded } from "../../../lib/payments-db";
 import { hmacSha256Hex, razorpayConfig, razorpayRequest, safeEqual } from "../../../lib/razorpay";
+import { verifyPaidQueryCallback } from "../../../lib/payment-lifecycle.mjs";
+
+const suffix = (value: unknown) => typeof value === "string" && value.length ? value.slice(-6) : undefined;
+function diagnostic(stage: string, data: Record<string, unknown> = {}) {
+  console.info("Payment verification", {
+    stage,
+    referenceSuffix: suffix(data.reference),
+    orderSuffix: suffix(data.orderId),
+    paymentSuffix: suffix(data.paymentId),
+    result: typeof data.result === "string" ? data.result : undefined
+  });
+}
 
 export const POST: APIRoute = async (context) => {
+  let recordReference = "";
+  let orderId = "";
+  let paymentId = "";
+  diagnostic("started");
+
   try {
     const user = await currentAuth(context);
-    if (!user || user.purpose !== "user" || user.user_type !== "public") {
-      return json({ error: "Please sign in to verify payment." }, 401);
-    }
+    const authenticated = Boolean(user && user.purpose === "user" && user.user_type === "public");
+    diagnostic("authentication_result", { result: authenticated ? "authenticated" : "unauthenticated" });
+    if (!authenticated) return json({ code: "AUTH_REQUIRED", error: "Please sign in to verify payment." }, 401);
     const body = await context.request.json();
-    const reference = cleanText(body.referenceCode, 40);
-    const paymentId = cleanText(body.razorpay_payment_id, 80);
-    const orderId = cleanText(body.razorpay_order_id, 80);
-    const signature = cleanText(body.razorpay_signature, 128);
-    const type = cleanText(body.orderType, 30);
-    if (!reference || !paymentId || !orderId || !signature || type !== "paid_query") {
-      return json({ error: "Invalid payment verification details." }, 400);
-    }
+    recordReference = typeof body?.referenceCode === "string" ? body.referenceCode.trim() : "";
+    orderId = typeof body?.razorpay_order_id === "string" ? body.razorpay_order_id.trim() : "";
+    paymentId = typeof body?.razorpay_payment_id === "string" ? body.razorpay_payment_id.trim() : "";
+    diagnostic("reference_order_received", { reference: recordReference, orderId, paymentId });
 
     const sql = getDb(context);
-    const rows = await sql`SELECT id, razorpay_order_id, payment_status, amount_inr
-      FROM paid_query_orders
-      WHERE reference_code = ${reference} AND user_profile_id = ${user.id}
-      LIMIT 1`;
-    const record = rows[0];
-    if (!record || record.razorpay_order_id !== orderId) return json({ error: "Payment order mismatch." }, 400);
-    if (record.payment_status === "paid") return json({ ok: true, alreadyVerified: true });
-
     const { keyId, keySecret } = razorpayConfig(context);
-    const expected = await hmacSha256Hex(keySecret, orderId + "|" + paymentId);
-    if (!safeEqual(expected, signature)) return json({ error: "Payment signature verification failed." }, 400);
-    let payment = await razorpayRequest<{id:string;order_id:string;amount:number;currency:string;status:string}>("/payments/" + encodeURIComponent(paymentId), keyId, keySecret);
-    if (payment.id !== paymentId || payment.order_id !== orderId || payment.amount !== Number(record.amount_inr) * 100 || payment.currency !== "INR") {
-      return json({ error: "Payment does not match this order." }, 409);
-    }
-    if (payment.status === "authorized") {
-      payment = await razorpayRequest<{id:string;order_id:string;amount:number;currency:string;status:string}>(
-        "/payments/" + encodeURIComponent(paymentId) + "/capture", keyId, keySecret,
-        { amount: payment.amount, currency: payment.currency }
-      );
-    }
-    if (payment.status !== "captured") return json({ error: "Payment is not captured yet. Please check your account before trying again." }, 409);
-
-    const updated = await sql`UPDATE paid_query_orders
-      SET payment_status = 'paid', status = 'submitted', payment_provider = 'razorpay',
-          payment_reference = ${paymentId}, razorpay_payment_id = ${paymentId},
-          paid_at = COALESCE(paid_at, now()), updated_at = now()
-      WHERE id = ${record.id} AND user_profile_id = ${user.id} AND payment_status = 'pending'
-      RETURNING id`;
-    if (!updated.length) {
-      const current = await sql`SELECT payment_status FROM paid_query_orders WHERE id = ${record.id} AND user_profile_id = ${user.id} LIMIT 1`;
-      if (current[0]?.payment_status !== "paid") return json({ error: "Payment state changed. Refresh and check your account." }, 409);
-    }
-    return json({ ok: true });
+    const result = await verifyPaidQueryCallback({
+      user,
+      body,
+      deps: {
+        findRecord: (reference: string, userId: string) => findPaidQueryByReference(sql, reference, userId),
+        verifySignature: async (expectedOrderId: string, expectedPaymentId: string, signature: string) => {
+          const expected = await hmacSha256Hex(keySecret, expectedOrderId + "|" + expectedPaymentId);
+          return safeEqual(expected, signature);
+        },
+        fetchPayment: (id: string) => razorpayRequest<{
+          id: string; order_id: string; amount: number; currency: string; status: string;
+          captured: boolean; amount_refunded?: number; refund_status?: "partial" | "full" | null;
+        }>("/payments/" + encodeURIComponent(id), keyId, keySecret),
+        markCaptured: (record: any, payment: any) => settlePaidQueryCaptured(sql, record, payment, user?.id),
+        markRefunded: (record: any, payment: any) => settlePaidQueryRefunded(sql, record, payment, user?.id),
+        log: (stage: string, data: Record<string, unknown>) => diagnostic(stage, data)
+      }
+    });
+    return json(result, result.status);
   } catch (error) {
-    console.error("Razorpay payment verification failed", error);
-    return json({ error: "Unable to verify payment right now." }, 500);
+    diagnostic("verification_exception", { reference: recordReference, orderId, paymentId, result: error instanceof Error ? error.name : "unknown" });
+    return json({
+      code: "VERIFICATION_UNAVAILABLE",
+      error: "Payment verification is temporarily unavailable. Do not pay again; retry verification or check payment status."
+    }, 503);
   }
 };

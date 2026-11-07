@@ -1,0 +1,17 @@
+# Copy this file to .dev.vars and fill it with development-only values.
+# Never use production database credentials here.
+PUBLIC_FIREBASE_API_KEY=replace-with-development-web-api-key
+PUBLIC_FIREBASE_AUTH_DOMAIN=helpmedost-auth-test.firebaseapp.com
+PUBLIC_FIREBASE_PROJECT_ID=helpmedost-auth-test
+PUBLIC_FIREBASE_APP_ID=replace-with-development-web-app-id
+
+# Server-side Firebase token verification uses the same Web API key.
+FIREBASE_API_KEY=replace-with-development-web-api-key
+FIREBASE_PROJECT_ID=helpmedost-auth-test
+
+# Use an isolated development database containing the existing HelpMeDost schema.
+DATABASE_URL=replace-with-development-neon-connection-string
+ADMIN_EMAILS=mr.ray.rs@gmail.com
+
+# Keep model calls off unless the account plan and free quota have been verified.
+DOST_AI_ENABLED=false
