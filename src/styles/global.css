@@ -163,3 +163,20 @@
 .hm-mobile-signout{display:block;width:100%;padding:12px 13px;border:0;border-radius:10px;background:#fff;color:#a23a32;text-align:left;font:700 14px "DM Sans",sans-serif;cursor:pointer}
 @media(max-width:1180px){.hm-mobile-session:not([hidden]){display:flex}}
 @media(min-width:1181px){.hm-mobile-session{display:none!important}}
+
+
+/* Compact the mobile navigation drawer so it does not dominate the page */
+@media(max-width:1180px){
+ .site-header .mobile-menu-panel{
+   box-sizing:border-box;
+   width:min(300px,calc(100vw - 48px));
+   max-width:calc(100vw - 48px);
+   padding:10px;
+ }
+ .site-header .mobile-menu-panel>a,
+ .site-header .mobile-menu-panel>button{
+   box-sizing:border-box;
+   padding:10px 12px;
+ }
+ .site-header .mobile-menu-panel .mobile-menu-cta{margin-top:5px}
+}
