@@ -2,7 +2,11 @@ name = "helpmedost"
 compatibility_date = "2026-11-04"
 pages_build_output_dir = "./dist"
 
+[ai]
+binding = "AI"
+
 [vars]
+DOST_AI_ENABLED = "true"
 APP_NAME = "HelpMeDost"
 ADMIN_EMAILS = "mr.ray.rs@gmail.com"
 FIREBASE_PROJECT_ID = "helpmedost-auth-test"
