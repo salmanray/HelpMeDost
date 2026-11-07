@@ -1,0 +1,112 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import "../../styles/service-pages.css";
+
+const services = {
+  "student-support": {
+    icon: "🎓", label: "Student & Parent Services", title: "Student Support",
+    lead: "Clear, practical guidance for school admissions, education processes and student-related concerns.",
+    intro: "Find your next step in school and education matters. HelpMeDost brings information and human assistance together so students and parents can understand a process before taking action.",
+    topics: ["School admissions and admission timelines", "EWS / DG admission process guidance", "Understanding school circulars and notices", "Application forms and document checklists", "School-related concerns and parent guidance"],
+    steps: ["Choose the education topic you need help with.", "Read the available guidance and keep relevant documents ready.", "If you need personal support, submit a help request with only the necessary details."],
+    tips: ["Always verify dates and eligibility in the latest official notification.", "Keep application numbers and acknowledgements safe.", "Never share OTPs, passwords or full identity documents in a general enquiry."],
+    faqs: [["Can you guarantee admission?", "No. We provide information and assistance; admission decisions are made by the relevant school or authority."], ["Can I ask about an admission circular?", "Yes. Share its title or public link through a help request and explain what needs clarification."]]
+  },
+  "complaints": {
+    icon: "📣", label: "Raise a Concern", title: "Complaints & Grievance Support",
+    lead: "Understand where and how to raise a concern, what information to keep and how to follow up.",
+    intro: "A well-organised complaint is easier for the relevant authority to understand. We help you structure the issue, identify useful records and understand possible next steps.",
+    topics: ["School and education-related grievances", "Understanding complaint channels and escalation", "Preparing a clear timeline of events", "Organising supporting documents and acknowledgements", "Tracking a submitted HelpMeDost request"],
+    steps: ["Write down what happened, when and where.", "Collect relevant records and previous complaint references.", "Submit a request so the helpdesk can understand the issue and guide you."],
+    tips: ["Use factual, respectful language and avoid assumptions.", "Keep copies of submissions and acknowledgement numbers.", "For immediate danger or emergencies, contact the appropriate emergency service directly."],
+    faqs: [["Will HelpMeDost decide my complaint?", "No. The competent authority decides official complaints. HelpMeDost can help you understand and organise the process."], ["Can I submit anonymously?", "Do not assume a submission is anonymous. Review the information requested and privacy notice before sharing personal details."]]
+  },
+  "counselling": {
+    icon: "🤝", label: "Guidance & Conversation", title: "Counselling",
+    lead: "A supportive space to understand concerns and find an appropriate next step for students and parents.",
+    intro: "Sometimes a conversation helps make a difficult situation easier to understand. This page explains the kind of guidance you can request and how to ask for it.",
+    topics: ["Student and parent guidance", "School adjustment and study-related concerns", "Communication and family-school concerns", "Finding an appropriate qualified counsellor", "Understanding available support options"],
+    steps: ["Briefly describe the concern and who needs support.", "Tell us your preferred way and time to be contacted.", "The helpdesk can review your request and explain available options."],
+    tips: ["Share only what is necessary for the first enquiry.", "Counselling is not an emergency response service.", "Ask about the counsellor's qualifications, scope, privacy and any fee before booking."],
+    faqs: [["Is counselling available immediately?", "Availability depends on the support provider. A submitted request is not a confirmed appointment."], ["Is this a replacement for therapy?", "No. This page offers guidance and connection information, not diagnosis or treatment."]]
+  },
+  "legal-assistance": {
+    icon: "⚖️", label: "Legal Information & Support", title: "Legal Assistance",
+    lead: "Understand legal processes, prepare questions and find the right kind of professional assistance.",
+    intro: "Legal problems can feel complicated. Start by understanding the issue, the documents involved and the type of professional help that may be appropriate.",
+    topics: ["General legal information and process guidance", "Understanding notices, applications and common procedures", "Organising documents and preparing a case timeline", "Finding an appropriate legal professional", "Understanding where to seek legal aid"],
+    steps: ["Describe the issue in general terms without posting confidential details.", "Note important dates, notices and any case or diary number.", "Request assistance to understand possible next steps or professional options."],
+    tips: ["General information is not legal advice for your individual case.", "Do not upload privileged, confidential or highly sensitive documents in a public enquiry.", "Check the professional's credentials, scope, fees and engagement terms directly."],
+    faqs: [["Can this page provide legal advice?", "It provides general legal information and a route to request assistance. Case-specific advice should come from an advocate who has reviewed the facts."], ["Can you guarantee a case result?", "No. No outcome or court decision can be guaranteed."]]
+  },
+  "cyber-help": {
+    icon: "🛡️", label: "Digital Safety & Awareness", title: "Cyber Help",
+    lead: "Practical guidance for safer online activity, suspicious messages, account security and cyber awareness.",
+    intro: "Digital problems need calm, timely action. Learn basic safety steps and how to preserve relevant information before seeking specialist support.",
+    topics: ["Online fraud and suspicious payment requests", "Social media impersonation, harassment and account safety", "Cyberbullying and online abuse awareness", "Preserving screenshots, URLs and transaction references", "Basic digital privacy and security practices"],
+    steps: ["Stop interacting with suspicious callers, links or accounts.", "Preserve relevant messages, URLs, timestamps and transaction references without editing originals.", "For financial cyber fraud in India, contact your bank immediately and use the official 1930 helpline / National Cyber Crime Reporting Portal."],
+    tips: ["Never share OTPs, UPI PINs, passwords or remote-access codes.", "Do not delete original evidence; preserve the device and original files where possible.", "Use official reporting channels and beware of people demanding money to recover lost funds."],
+    faqs: [["Can HelpMeDost recover money?", "No recovery can be promised. Contact your bank and official cyber-fraud reporting channels immediately."], ["Can you certify a screenshot as genuine?", "No. Authenticity examination requires appropriate forensic expertise, original material and a documented process."]]
+  },
+  "government-jobs": {
+    icon: "🏛️", label: "Career & Recruitment Guidance", title: "Government Jobs",
+    lead: "Understand recruitment notifications, eligibility criteria, application steps and important documents.",
+    intro: "Recruitment notices can be long and confusing. Use a careful checklist to understand the official notice before applying.",
+    topics: ["Finding and understanding official recruitment notices", "Eligibility, age limits and qualification criteria", "Application form and document checklist", "Exam stages, admit cards and result updates", "Understanding correction windows and deadlines"],
+    steps: ["Open the official recruitment notification and note its publication date.", "Check every eligibility condition against your own documents.", "Apply only through the official portal and save the submitted form and receipt."],
+    tips: ["A social media post is not a substitute for the official notification.", "Never pay an unofficial agent for a job or guaranteed selection.", "Dates, vacancies and eligibility can change; verify the latest official notice."],
+    faqs: [["Can you guarantee selection?", "No. HelpMeDost can provide information and application guidance, not influence recruitment or selection."], ["Can you fill an application for me?", "You can request assistance. Any service scope, fee and responsibility must be agreed clearly before work begins."]]
+  },
+  "mental-wellbeing": {
+    icon: "💚", label: "Wellbeing & Support", title: "Mental Wellbeing",
+    lead: "Explore supportive information for stress, exam pressure and everyday wellbeing concerns.",
+    intro: "You do not have to figure everything out at once. Start with small, practical steps and seek qualified support when concerns feel difficult to manage.",
+    topics: ["Exam stress and study pressure", "Everyday stress and emotional wellbeing", "Parent and student communication", "Healthy routines, rest and support networks", "Finding qualified mental-health professionals"],
+    steps: ["Identify what has been feeling difficult and for how long.", "Reach out to a trusted person or qualified professional.", "If you want help finding an appropriate support option, send a brief request."],
+    tips: ["This page is educational and does not diagnose or treat a condition.", "If someone may be in immediate danger, contact local emergency services or go to the nearest emergency department.", "In India, Tele-MANAS can be reached at 14416 for mental-health support."],
+    faqs: [["Is this a clinical service?", "No. This page provides general wellbeing information and may help you explore qualified support."], ["What if it is urgent?", "Do not wait for a website response. Contact emergency services or a qualified crisis-support service immediately."]]
+  },
+  "expert-connect": {
+    icon: "🧑‍💼", label: "Professional Support Network", title: "Expert Connect",
+    lead: "Explore ways to connect with relevant professionals for guidance, subject to availability and verification.",
+    intro: "Some questions need a person with the right professional background. Tell us what kind of support you are looking for so the team can explain whether a suitable connection may be available.",
+    topics: ["Education and admission guidance", "Qualified counsellors and special educators", "Legal professionals and legal-aid information", "Digital safety and technical guidance", "Other relevant subject-matter professionals"],
+    steps: ["Choose the kind of expertise you need and briefly describe the question.", "The team can review the request and explain whether a suitable connection is available.", "Before proceeding, confirm credentials, scope, availability, fees and terms directly."],
+    tips: ["A request does not guarantee that a professional is available.", "Verify identity, qualifications and registration where applicable.", "Do not pay until the service, provider, price and terms are clearly disclosed."],
+    faqs: [["Are all experts already onboarded?", "Availability and onboarding status may vary. The team will need to confirm this for each request."], ["Is an appointment confirmed after submitting?", "No. An appointment is confirmed only after the provider and user agree on the details."]]
+  }
+};
+const slug = Astro.params.slug ?? "";
+const service = services[slug];
+if (!service) return Astro.redirect("/404");
+const related = Object.entries(services).filter(([key]) => key !== slug).slice(0, 3);
+---
+<BaseLayout title={`${service.title} | HelpMeDost`} description={service.lead}>
+  <main class="service-page">
+    <section class="sp-hero">
+      <div class="sp-wrap">
+        <a class="sp-back" href="/#services">← All services</a>
+        <div class="sp-hero-grid">
+          <div>
+            <span class="sp-eyebrow">{service.label}</span>
+            <h1>{service.title}</h1>
+            <p class="sp-lead">{service.lead}</p>
+            <div class="sp-actions"><a class="sp-button" href="/request-help">Request assistance <span>→</span></a><a class="sp-secondary" href="/dost">Ask Dost AI ↗</a></div>
+            <p class="sp-note">Start with free information. Request human assistance only if you need it.</p>
+          </div>
+          <div class="sp-hero-card" aria-hidden="true"><span>{service.icon}</span><strong>HelpMeDost</strong><small>Understand · Prepare · Take the next step</small><div class="sp-card-lines"><i></i><i></i><i></i></div></div>
+        </div>
+      </div>
+    </section>
+    <section class="sp-wrap sp-intro"><div><span class="sp-kicker">How we can help</span><h2>Start with clarity, then choose your next step.</h2></div><p>{service.intro}</p></section>
+    <section class="sp-wrap sp-topics">
+      <div class="sp-section-heading"><span class="sp-kicker">Explore this service</span><h2>What you can find here</h2><p>These are guidance areas, not a promise that every service or provider is currently available.</p></div>
+      <div class="sp-topic-grid">{service.topics.map((topic, i) => <article class="sp-topic"><span>{String(i + 1).padStart(2, "0")}</span><h3>{topic}</h3></article>)}</div>
+    </section>
+    <section class="sp-how"><div class="sp-wrap"><div class="sp-section-heading"><span class="sp-kicker">Simple process</span><h2>Three steps to get started</h2></div><div class="sp-steps">{service.steps.map((step, i) => <article><span>0{i + 1}</span><p>{step}</p></article>)}</div></div></section>
+    <section class="sp-wrap sp-tips"><div class="sp-tips-copy"><span class="sp-kicker">Before you proceed</span><h2>A few things worth knowing</h2><p>Good information and safe decisions come first. Keep these points in mind while using this service.</p></div><ul>{service.tips.map(tip => <li><span>✓</span>{tip}</li>)}</ul></section>
+    <section class="sp-wrap sp-faq"><div class="sp-section-heading"><span class="sp-kicker">Common questions</span><h2>Frequently asked questions</h2></div><div class="sp-faq-list">{service.faqs.map(([question, answer]) => <details><summary>{question}</summary><p>{answer}</p></details>)}</div></section>
+    <section class="sp-wrap sp-final-cta"><div><span class="sp-kicker">Need a little more help?</span><h2>Tell us what you are trying to solve.</h2><p>Share only the details needed for an initial review. The team can explain the next available step.</p></div><a class="sp-button" href="/request-help">Get human assistance →</a></section>
+    <section class="sp-wrap sp-related"><h2>Explore other services</h2><div>{related.map(([key, item]) => <a href={`/${key}`}><span>{item.icon}</span><strong>{item.title}</strong><b>↗</b></a>)}</div></section>
+  </main>
+</BaseLayout>
