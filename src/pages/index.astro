@@ -2,67 +2,66 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import "../styles/homepage.css";
 ---
-<BaseLayout
-  title="HelpMeDost | Pareshani koi bhi ho, raasta zaroor milega"
-  description="Students aur parents ke liye friendly, practical assistance. Apni problem batayein, clear next steps aur sahi guidance paayein."
->
-  <section class="hm-hero">
-    <div class="hm-container hm-hero-grid">
-      <div class="hm-hero-copy">
-        <div class="hm-kicker"><span class="hm-kicker-dot"></span> Aapka apna help platform</div>
-        <h1>Har mushkil ka<br/><span>ek dostana raasta.</span></h1>
-        <p class="hm-lead">School admission ho, kisi form mein confusion ho ya samajh na aaye kahan se shuru karein — apni baat humein batayein. Hum aapko sahi information aur agla practical step samajhne mein madad karenge.</p>
-        <div class="hm-actions">
-          <a class="hm-btn hm-btn-primary" href="/request-help">Madad shuru karein <span aria-hidden="true">↗</span></a>
-          <a class="hm-btn hm-btn-quiet" href="/track"><span class="hm-play" aria-hidden="true">⌕</span> Request track karein</a>
+<BaseLayout title="HelpMeDost | Student, Parent & Citizen Assistance Portal" description="A one-stop helpdesk for students, parents and citizens — education, complaints, counselling, legal guidance and cyber safety.">
+  <section class="hm-reference-hero">
+    <div class="hm-reference-inner">
+      <div class="hm-reference-copy">
+        <span class="hm-reference-pill">A One-Stop Helpdesk</span>
+        <h1>Support, Guidance and Solutions for <span class="word-blue">Students</span>, <span class="word-green">Parents</span> and <span class="word-orange">Families</span></h1>
+        <p>Education, Complaints, Counselling, Legal Help, Cyber Safety and Government Services – All in One Place.</p>
+        <div class="hm-reference-actions"><a class="hm-reference-primary" href="/request-help">Get Help Now <b>→</b></a><a class="hm-reference-secondary" href="/dost">Ask Dost AI <b>🤖</b></a></div>
+      </div>
+      <div class="hm-reference-family">
+        <div class="hm-family-photo-wrap"><img src="/family-hero.jpg" alt="A father and children smiling together while using a laptop" loading="eager" /></div>
+        <div class="hm-family-swoosh"></div>
+        <div class="hm-family-service-pills">
+          <a href="/request-help"><span class="service-symbol green">🎓</span>Student Help</a>
+          <a href="/request-help"><span class="service-symbol green">👥</span>Counselling &amp; Wellbeing</a>
+          <a href="/request-help"><span class="service-symbol orange">⚖</span>Legal Guidance</a>
+          <a href="/request-help"><span class="service-symbol green">▣</span>Cyber Safety</a>
+          <a href="/request-help"><span class="service-symbol blue">🏛</span>Government Work</a>
         </div>
-        <div class="hm-reassurance"><span>✓ Aasaan process</span><span>✓ Clear guidance</span><span>✓ Ek jagah se shuruaat</span></div>
-      </div>
-      <div class="hm-hero-visual" aria-label="A friendly illustration representing help and guidance">
-        <div class="hm-orbit hm-orbit-one"></div><div class="hm-orbit hm-orbit-two"></div>
-        <div class="hm-sun"></div>
-        <div class="hm-visual-card">
-          <div class="hm-visual-top"><div class="hm-avatar">h<span>.</span></div><div><strong>HelpMeDost</strong><small>Yahin se shuruaat karein</small></div><span class="hm-online"></span></div>
-          <div class="hm-chat hm-chat-user">Mujhe samajh nahi aa raha kya karun…</div>
-          <div class="hm-chat hm-chat-answer"><span class="hm-answer-mark">✓</span><div><strong>Koi baat nahi. Hum hain na.</strong><p>Chaliye, ek-ek step samajhte hain.</p></div></div>
-          <div class="hm-card-bottom"><span>Ek chhota step. Nayi shuruaat.</span><span>♥</span></div>
-        </div>
-        <div class="hm-float hm-float-top"><span>✦</span> Guidance that feels human</div>
-        <div class="hm-float hm-float-bottom"><span class="hm-float-icon">↗</span><div><strong>One step at a time</strong><small>Aap akele nahi hain</small></div></div>
-      </div>
-    </div>
-    <div class="hm-hero-wash"></div>
-  </section>
-
-  <section class="hm-trust-strip">
-    <div class="hm-container hm-trust-inner"><span>HELP, WITHOUT THE HASSLE</span><i></i><span>Simple language</span><i></i><span>Practical next steps</span><i></i><span>People-first support</span></div>
-  </section>
-
-  <section class="hm-section" id="services">
-    <div class="hm-container">
-      <div class="hm-section-head"><div><div class="hm-kicker">Aapko kis cheez mein help chahiye?</div><h2>Jahan confusion ho,<br/><span>wahin se shuru karte hain.</span></h2></div><p>Abhi hamari pehli priority Student Help Portal hai. Baaki support areas ko hum carefully, step-by-step add karenge.</p></div>
-      <div class="hm-service-grid">
-        <a class="hm-service hm-service-featured" href="/request-help"><div class="hm-service-icon hm-icon-blue">✳</div><span class="hm-service-tag">Launch focus</span><h3>Student Help Portal</h3><p>School admission, EWS guidance, forms aur education-related processes ko samajhne mein practical help.</p><span class="hm-service-link">Student help explore karein <b>↗</b></span></a>
-        <article class="hm-service"><div class="hm-service-icon hm-icon-peach">⌂</div><h3>Parent Guidance</h3><p>Bachchon ki education aur school matters mein information aur available options samajhne mein support.</p><span class="hm-coming">Planned service</span></article>
-        <article class="hm-service"><div class="hm-service-icon hm-icon-mint">◎</div><h3>Digital Assistance</h3><p>Online forms, digital services aur technology ko safely use karne ki basic guidance.</p><span class="hm-coming">Planned service</span></article>
-        <article class="hm-service"><div class="hm-service-icon hm-icon-lilac">♧</div><h3>Everyday Guidance</h3><p>Jab process confusing lage, possible next steps aur relevant information tak pahunchne mein help.</p><span class="hm-coming">Planned service</span></article>
-      </div>
-      <div class="hm-services-note"><span>✦</span> More support areas will be introduced in phases. We’ll keep the experience simple and useful.</div>
-    </div>
-  </section>
-
-  <section class="hm-how" id="how-it-works">
-    <div class="hm-container">
-      <div class="hm-section-head hm-how-head"><div><div class="hm-kicker">Bas teen simple steps</div><h2>Madad maangna<br/><span>itna mushkil nahi.</span></h2></div><p>Aap apni baat share karein. Hum request ko organise karenge taaki aap uska update aasani se dekh sakein.</p></div>
-      <div class="hm-steps">
-        <article class="hm-step"><div class="hm-step-top"><span>01</span><div class="hm-step-icon">✎</div></div><h3>Apni baat batayein</h3><p>Problem ya question ko simple words mein share karein. Jitni zaroori details ho, utni hi dein.</p></article>
-        <article class="hm-step"><div class="hm-step-top"><span>02</span><div class="hm-step-icon">⌑</div></div><h3>Reference number paayein</h3><p>Request submit hone par unique reference number milega. Use sambhal kar rakhein.</p></article>
-        <article class="hm-step"><div class="hm-step-top"><span>03</span><div class="hm-step-icon">↗</div></div><h3>Update check karein</h3><p>Apne reference number se request ka status aur available updates check karein.</p></article>
       </div>
     </div>
   </section>
 
-  <section class="hm-bottom-cta">
-    <div class="hm-container"><div class="hm-cta-card"><div class="hm-cta-decoration">h.</div><div class="hm-cta-copy"><div class="hm-kicker hm-kicker-light">Aaj hi pehla step lein</div><h2>Pareshani koi bhi ho,<br/>raasta zaroor milega.</h2><p>Aapki baat suni jaana zaroori hai. Shuruaat yahin se karein.</p></div><a class="hm-btn hm-btn-white" href="/request-help">Talk to HelpMeDost <span>↗</span></a></div></div>
+  <section class="hm-reference-services" id="services">
+    <div class="hm-reference-section-head"><h2>Our Key Services</h2><a href="/request-help">View All Services <b>→</b></a></div>
+    <div class="hm-reference-service-grid">
+      <a href="/request-help" class="hm-ref-service"><span class="hm-ref-icon blue">🎓</span><strong>Student Support</strong><small>(Admission, EWS, etc.)</small></a>
+      <a href="/request-help" class="hm-ref-service"><span class="hm-ref-icon orange">▤</span><strong>Complaint &amp;<br/>Grievance</strong></a>
+      <a href="/request-help" class="hm-ref-service"><span class="hm-ref-icon green">👥</span><strong>Counselling</strong><small>(Student &amp; Parent)</small></a>
+      <a href="/request-help" class="hm-ref-service"><span class="hm-ref-icon blue">⚖</span><strong>Legal Assistance</strong><small>(Guidance &amp; Support)</small></a>
+      <a href="/request-help" class="hm-ref-service"><span class="hm-ref-icon blue">▣</span><strong>Cyber Help</strong><small>(Safety &amp; Awareness)</small></a>
+      <a href="/request-help" class="hm-ref-service"><span class="hm-ref-icon blue">▰</span><strong>Government Jobs</strong><small>(Alerts &amp; Guidance)</small></a>
+      <a href="/request-help" class="hm-ref-service"><span class="hm-ref-icon red">♥</span><strong>Mental Wellbeing</strong><small>(Stress, Exam, Life)</small></a>
+      <a href="/request-help" class="hm-ref-service"><span class="hm-ref-icon orange">🤝</span><strong>Expert Connect</strong><small>(Advocate, Counsellor, etc.)</small></a>
+    </div>
   </section>
-</BaseLayout>
+
+  <section class="hm-reference-lower">
+    <article class="hm-reference-dost">
+      <div class="hm-robot-art" aria-hidden="true"><div class="robot-antenna"></div><div class="robot-head"><span>● ●</span><i>⌣</i></div><div class="robot-body"><b>h</b></div><div class="robot-hand"></div></div>
+      <div class="hm-dost-content"><h2>Dost <span>AI</span></h2><h3>Your Digital Assistant</h3><ul><li>Get instant guidance</li><li>Understand processes</li><li>Find relevant resources</li></ul><a href="/dost">Ask Dost AI Now <b>→</b></a></div>
+    </article>
+    <article class="hm-reference-updates">
+      <div class="hm-ref-panel-heading"><span>⚑</span><h2>Latest Updates &amp; Circulars</h2><a href="/request-help">View All →</a></div>
+      <a href="/request-help" class="hm-ref-update"><span>▤</span><strong>Delhi Government School Admission Guidance</strong><em>Explore</em></a>
+      <a href="/request-help" class="hm-ref-update"><span>▤</span><strong>EWS / DG Admission – Application Support</strong></a>
+      <a href="/request-help" class="hm-ref-update"><span>▤</span><strong>Cyber Safety Awareness – Student Resources</strong></a>
+      <a href="/request-help" class="hm-ref-update"><span>▤</span><strong>RTI: How to File and Track Your Application</strong></a>
+      <p class="hm-update-note">Guidance topics shown here. Check official department notifications for current dates and rules.</p>
+    </article>
+    <article class="hm-reference-human">
+      <div class="hm-human-art" aria-hidden="true"><div class="human-head"></div><div class="human-hair"></div><div class="human-headset"></div><div class="human-body"></div></div>
+      <div class="hm-human-content"><span>☏</span><h2>Need Human Assistance?</h2><p>Talk to our helpdesk team for personalised support.</p><a href="/request-help">Request Human Assistance <b>→</b></a></div>
+    </article>
+  </section>
+
+  <section class="hm-reference-trust">
+    <div><span>👥</span><p><strong>Students &amp; Parents</strong><small>Support</small></p></div>
+    <div><span>ϟ</span><p><strong>Quick Resolution</strong><small>(Track Your Request)</small></p></div>
+    <div><span>🛡</span><p><strong>Safe &amp; Confidential</strong><small>(Your Data is Protected)</small></p></div>
+    <div><span>♡</span><p><strong>Inclusive &amp; Accessible</strong><small>(For Everyone)</small></p></div>
+  </section>
+  </BaseLayout>
