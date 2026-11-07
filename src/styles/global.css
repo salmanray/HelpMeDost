@@ -99,3 +99,51 @@
   .hm-utility-access span{font-size:10px}
   .hm-utility-access button{min-width:28px;min-height:25px;padding:2px 6px;font-size:11px}
 }
+
+
+/* Consistent responsive header and signed-in account indicator */
+.hm-account-menu{position:relative}
+.hm-account-menu>summary{list-style:none;display:flex;align-items:center;gap:9px;padding:5px 9px 5px 5px;border:1px solid #dce6ed;border-radius:14px;background:#fff;cursor:pointer}
+.hm-account-menu>summary::-webkit-details-marker{display:none}
+.hm-avatar{width:38px;height:38px;flex:0 0 38px;border-radius:50%;display:grid;place-items:center;background:#e7f4ec;color:#087b3d;font-size:15px;font-weight:800;border:1px solid #cce8d7}
+.hm-account-copy{display:grid;gap:1px;text-align:left}
+.hm-account-copy strong{font-size:13px;color:#172b45;max-width:115px;overflow:hidden;text-overflow:ellipsis}
+.hm-account-copy small,.hm-account-identity small{font-size:10px;color:#16804a;display:flex;align-items:center;gap:5px}
+.hm-account-copy i,.hm-account-identity i,.hm-mobile-auth em i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#16a05a;box-shadow:0 0 0 2px #e0f5e8}
+.hm-account-chevron{font-size:17px;color:#52647a}
+.hm-account-popover{position:absolute;right:0;top:calc(100% + 10px);width:260px;padding:12px;background:#fff;border:1px solid #e2eaf0;border-radius:16px;box-shadow:0 16px 40px #142b4724;z-index:40;display:grid;gap:5px}
+.hm-account-identity{display:grid;gap:5px;padding:9px 10px 13px;border-bottom:1px solid #edf1f4;margin-bottom:5px;overflow-wrap:anywhere}
+.hm-account-identity strong{font-size:14px;color:#172b45}
+.hm-account-identity span{font-size:11px;color:#63738a}
+.hm-account-popover>a,.hm-account-popover>button{display:block;text-align:left;padding:11px 10px;border:0;border-radius:9px;background:#fff;color:#30445c;font:650 13px "DM Sans",sans-serif;cursor:pointer}
+.hm-account-popover>a:hover,.hm-account-popover>button:hover{background:#f2f7f4;color:#087b3d}
+.hm-mobile-auth{display:grid;grid-template-columns:42px 1fr;align-items:center;gap:4px 10px;padding:12px;margin:3px 2px 8px;background:#f3faf6;border:1px solid #dcefe3;border-radius:12px}
+.hm-mobile-auth .hm-avatar{grid-row:1}
+.hm-mobile-auth>span:nth-child(2){display:grid;gap:3px;min-width:0}
+.hm-mobile-auth strong{font-size:13px;color:#172b45;overflow-wrap:anywhere}
+.hm-mobile-auth small{font-size:11px;color:#65758b;overflow-wrap:anywhere}
+.hm-mobile-auth em{font-style:normal;font-size:10px;color:#16804a;display:flex;align-items:center;gap:6px}
+.hm-mobile-auth>a,.hm-mobile-auth>button{grid-column:1/-1;padding:10px;border:0;border-radius:9px;background:#fff;color:#24445f;text-align:center;font:700 12px "DM Sans",sans-serif;cursor:pointer}
+.hm-mobile-auth>button{color:#a23a32}
+.hm-mobile-auth[hidden],.hm-account-menu[hidden]{display:none!important}
+@media(min-width:1181px){
+ .site-header .nav-wrap{gap:clamp(12px,1.2vw,24px)}
+ .site-header .nav-wrap>nav{gap:clamp(8px,.9vw,17px);font-size:clamp(12px,.82vw,15px)}
+}
+@media(max-width:1180px){
+ .site-header .nav-wrap>nav,.hm-header-actions{display:none!important}
+ .site-header .mobile-menu{display:block;position:relative;margin-left:auto}
+ .site-header .mobile-menu summary{list-style:none;display:grid;place-items:center;width:46px;height:46px;border:1px solid #e0e7ed;border-radius:13px;background:#fff;cursor:pointer}
+ .site-header .mobile-menu summary::-webkit-details-marker{display:none}
+ .site-header .mobile-menu-panel{display:grid;position:absolute;right:0;top:calc(100% + 8px);width:min( min(390px, calc(100vw - 28px)), 390px);max-height:min(72vh,620px);overflow-y:auto;padding:12px;background:#fff;border:1px solid #e3eaf0;border-radius:18px;box-shadow:0 18px 48px #172b4526;gap:2px;z-index:30}
+ .site-header .mobile-menu-panel>a{padding:12px 13px;border-radius:10px;color:#40516a;font-size:14px;font-weight:700}
+ .site-header .mobile-menu-panel>a:hover{background:#f2f7f4;color:#087b3d}
+ .site-header .mobile-menu-panel .mobile-menu-cta{background:#078b42;color:#fff;text-align:center;margin-top:6px}
+}
+@media(max-width:760px){
+ .hm-utility-inner{width:calc(100% - 28px)}
+ .site-header .nav-wrap{width:calc(100% - 28px)}
+ .site-header .brand{font-size:21px;gap:9px}
+ .site-header .brand-mark{width:43px;height:43px;font-size:33px}
+ .site-header .brand-subtitle{font-size:9px}
+}
