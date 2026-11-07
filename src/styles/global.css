@@ -46,3 +46,18 @@
 .site-header .mobile-menu{display:none}
 @media(max-width:1150px){.site-header .nav-wrap{gap:12px}.site-header .brand{font-size:22px}.site-header .brand-mark{width:46px;height:46px;font-size:33px}.site-header .nav-wrap>nav{gap:9px;font-size:11px}.hm-login-link{padding:9px 11px;font-size:12px}.site-header .desktop-get-help{padding:10px 12px;font-size:12px}}
 @media(max-width:760px){.hm-utility-bar{height:30px}.hm-utility-inner{width:calc(100% - 28px);font-size:10px}.hm-utility-tagline,.hm-utility-access{display:none}.site-header{height:68px}.site-header .nav-wrap{width:calc(100% - 28px)}.site-header .nav-wrap>nav,.hm-header-actions{display:none}.site-header .brand{font-size:21px}.site-header .brand-mark{width:43px;height:43px}.site-header .brand-subtitle{font-size:9px}.site-header .mobile-menu{display:block;margin-left:auto}}
+
+
+@media(min-width:701px){
+  .hm-utility-inner,
+  .site-header .nav-wrap {
+    width:calc(100% - clamp(32px,4vw,88px));
+    max-width:none;
+  }
+  .site-header .nav-wrap{gap:clamp(16px,1.7vw,34px)}
+  .site-header .brand{font-size:clamp(23px,1.8vw,34px)}
+  .site-header .brand-mark{width:clamp(48px,3.5vw,66px);height:clamp(48px,3.5vw,66px);font-size:clamp(35px,2.6vw,52px)}
+  .site-header .brand-subtitle{font-size:clamp(10px,.68vw,14px)}
+  .site-header .nav-wrap>nav{font-size:clamp(13px,.92vw,18px);gap:clamp(10px,1.15vw,22px)}
+  .hm-login-link,.site-header .desktop-get-help{font-size:clamp(13px,.9vw,18px);padding:clamp(10px,.8vw,16px) clamp(13px,1vw,22px)}
+}
