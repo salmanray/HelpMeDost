@@ -1,0 +1,21 @@
+import type { APIRoute } from "astro";
+import { currentAuth } from "../../../../lib/auth";
+import { driveEnv } from "../../../../lib/google-drive";
+const html = (body:string,status=200) => new Response(`<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>HelpMeDost Drive connection</title><body style="font:16px system-ui;max-width:760px;margin:40px auto;padding:0 20px;color:#17213a">${body}</body></html>`,{status,headers:{"Content-Type":"text/html; charset=utf-8","Cache-Control":"no-store","Referrer-Policy":"no-referrer","Set-Cookie":"hmd_drive_oauth_state=; HttpOnly; Secure; SameSite=Lax; Path=/api/admin/google-drive; Max-Age=0"}});
+const esc = (s:string) => s.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
+export const GET: APIRoute = async (context) => {
+  const user = await currentAuth(context);
+  if (!user || user.purpose !== "admin" || user.user_type !== "admin") return html("<h1>Admin sign-in required</h1><p>Sign in to HelpMeDost admin, then reconnect Google Drive.</p>",401);
+  const url = new URL(context.request.url), code = url.searchParams.get("code") || "", state = url.searchParams.get("state") || "", error = url.searchParams.get("error");
+  if (error) return html("<h1>Google connection cancelled</h1><p>You can close this tab and try again from the admin dashboard.</p>",400);
+  const cookie = context.request.headers.get("cookie") || "";
+  const savedState = cookie.split(";").map(v=>v.trim()).find(v=>v.startsWith("hmd_drive_oauth_state="))?.slice("hmd_drive_oauth_state=".length) || "";
+  if (!code || !state || !savedState || state !== savedState) return html("<h1>Connection could not be verified</h1><p>OAuth state check failed. Return to the admin dashboard and try again.</p>",400);
+  const env = driveEnv(context);
+  if (!env.GOOGLE_DRIVE_CLIENT_ID || !env.GOOGLE_DRIVE_CLIENT_SECRET || !env.GOOGLE_DRIVE_REDIRECT_URI) return html("<h1>Configuration incomplete</h1><p>OAuth credentials are missing from this environment.</p>",500);
+  const response = await fetch("https://oauth2.googleapis.com/token",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({code,client_id:env.GOOGLE_DRIVE_CLIENT_ID,client_secret:env.GOOGLE_DRIVE_CLIENT_SECRET,redirect_uri:env.GOOGLE_DRIVE_REDIRECT_URI,grant_type:"authorization_code"})});
+  const data = await response.json() as {refresh_token?:string;access_token?:string;error?:string;error_description?:string};
+  if (!response.ok || !data.access_token) return html(`<h1>Google token exchange failed</h1><p>${esc(data.error_description||data.error||"Unknown OAuth error")}</p><p>Return to the dashboard and try again.</p>`,400);
+  if (!data.refresh_token) return html("<h1>Google account authorised, but no refresh token was returned</h1><p>Google may already have an earlier grant. Revoke HelpMeDost access from your Google Account security settings, then reconnect from the admin dashboard.</p>",400);
+  return html(`<h1>Google Drive authorisation successful</h1><p>Copy the refresh token below into Cloudflare Preview as a <strong>Secret</strong> named <code>GOOGLE_DRIVE_REFRESH_TOKEN</code>. Never share it in chat or commit it to GitHub.</p><textarea id="token" readonly style="width:100%;min-height:110px;padding:12px">${esc(data.refresh_token)}</textarea><p><button onclick="navigator.clipboard.writeText(document.querySelector('#token').value)">Copy refresh token</button></p><p>After saving the secret in Cloudflare Preview, redeploy the feature branch. Then return to the admin dashboard and test the connection.</p><p><a href="/admin">Return to HelpMeDost admin</a></p>`);
+};
