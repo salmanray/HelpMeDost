@@ -39,7 +39,7 @@ export const PATCH: APIRoute = async (context) => {
     const sql=getDb(context);
     const rows=action==="unpublish"
       ? await sql`UPDATE circular_notifications SET status='unpublished',updated_at=now() WHERE id=${id}::uuid AND status IN ('published','archived') RETURNING id`
-      : await sql`UPDATE circular_notifications SET status='published',archived_at=NULL,updated_at=now() WHERE id=${id}::uuid AND status IN ('unpublished','archived') AND (notification_type='permanent' OR expires_at>now()) RETURNING id`;
+      : await sql`UPDATE circular_notifications SET status='published',archived_at=NULL,updated_at=now() WHERE id=${id}::uuid AND status IN ('draft','unpublished','archived') AND (notification_type='permanent' OR expires_at>now()) RETURNING id`;
     if(!rows.length)return json({error:"Circular not found or action is not allowed."},404);
     return json({ok:true});
   }catch(error){console.error("Circular update failed",error);return json({error:"Unable to update circular."},500);}
