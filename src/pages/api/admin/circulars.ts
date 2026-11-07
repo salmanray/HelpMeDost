@@ -22,7 +22,7 @@ export const POST: APIRoute = async (context) => {
     try {
       const sql=getDb(context);
       const rows=await sql`INSERT INTO circular_notifications(title,summary,category,issue_date,notification_type,status,expires_at,archive_action,active_object_key,original_filename,file_size_bytes,mime_type,created_by)
-      VALUES(${title},${summary},${category},${issueDate}::date,${type},'published',${type==="permanent"?null: new Date(expiry).toISOString()}::timestamptz,'move',${uploaded.id},${file.name},${uploaded.size},'application/pdf',${user.id}::uuid)
+      VALUES(${title},${summary},${category},${issueDate}::date,${type},${cleanText(form.get("publish"),5)==="false"?"draft":"published"},${type==="permanent"?null: new Date(expiry).toISOString()}::timestamptz,'move',${uploaded.id},${file.name},${uploaded.size},'application/pdf',${user.id}::uuid)
       RETURNING id,title,status`;
       return json({ok:true,circular:rows[0]});
     } catch(error) {
